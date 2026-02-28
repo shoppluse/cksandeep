@@ -4,6 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analytics Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="bg-gradient-to-br from-indigo-100 to-indigo-200 min-h-screen p-6">
@@ -12,79 +13,105 @@
 
 <h1 class="text-3xl font-bold mt-4 mb-6">🧠 Menu Intelligence Dashboard</h1>
 
-<div class="bg-white rounded-2xl shadow-xl p-6 max-w-6xl">
+<!-- TOP DISH -->
+<div class="bg-white rounded-2xl shadow-xl p-6 max-w-6xl mb-6 text-center">
+<h2 class="text-xl font-bold">Top Performing Dish</h2>
+<p id="topDish" class="text-3xl font-bold text-green-600">No data</p>
+</div>
 
+<!-- TABLE -->
+<div class="bg-white rounded-2xl shadow-xl p-6 max-w-6xl">
 <table class="w-full text-left">
 <thead class="bg-indigo-100">
 <tr>
+<th class="p-3">Rank</th>
 <th class="p-3">Dish</th>
 <th class="p-3">Cost</th>
 <th class="p-3">Price</th>
 <th class="p-3">Profit</th>
 <th class="p-3">Margin</th>
-<th class="p-3">Status</th>
+<th class="p-3">Suggestion</th>
 <th class="p-3">Action</th>
 </tr>
 </thead>
 <tbody id="analyticsTable"></tbody>
 </table>
-
 </div>
 
-<div class="bg-white rounded-2xl shadow-xl p-6 max-w-6xl mt-6 text-center">
-<h2 class="text-xl font-bold">Average Margin</h2>
-<p class="text-3xl font-bold text-indigo-700"><span id="avgMargin">0</span>%</p>
+<!-- CHART -->
+<div class="bg-white rounded-2xl shadow-xl p-6 max-w-6xl mt-6">
+<h2 class="text-xl font-bold mb-4">Profit Margin Chart</h2>
+<canvas id="chart"></canvas>
 </div>
 
 <script>
 let data = JSON.parse(localStorage.getItem("analysis") || "[]");
 
+/* SORT BY MARGIN */
+data.sort((a,b)=>b.margin-a.margin);
+
+/* TOP DISH */
+if(data.length){
+document.getElementById("topDish").innerText =
+data[0].dish + " ("+data[0].margin.toFixed(1)+"%)";
+}
+
+/* RENDER TABLE */
 function render(){
 analyticsTable.innerHTML="";
-let totalMargin=0;
+let labels=[], margins=[];
 
 data.forEach((d,i)=>{
-let status="";
-let color="";
 
-if(d.margin >= 45){
-status="⭐ Best Seller";
-color="text-green-600 font-bold";
+let suggestion="";
+if(d.margin < 30){
+let newPrice = d.cost / 0.6;
+suggestion="Increase to ₹"+newPrice.toFixed(0);
 }
-else if(d.margin >= 30){
-status="👍 Good";
-color="text-blue-600 font-bold";
+else if(d.margin > 60){
+suggestion="You can reduce price";
 }
 else{
-status="❌ Weak";
-color="text-red-600 font-bold";
+suggestion="Perfect";
 }
 
-totalMargin += d.margin;
+labels.push(d.dish);
+margins.push(d.margin);
 
 analyticsTable.innerHTML+=`
 <tr class="border-b">
+<td class="p-3 font-bold">#${i+1}</td>
 <td class="p-3">${d.dish}</td>
 <td class="p-3">₹${d.cost.toFixed(2)}</td>
 <td class="p-3">₹${d.price.toFixed(2)}</td>
 <td class="p-3">₹${d.profit.toFixed(2)}</td>
 <td class="p-3">${d.margin.toFixed(1)}%</td>
-<td class="p-3 ${color}">${status}</td>
+<td class="p-3 text-blue-600">${suggestion}</td>
 <td class="p-3">
 <button onclick="remove(${i})" class="text-red-600">Delete</button>
 </td>
 </tr>`;
 });
 
-let avg = data.length ? totalMargin/data.length : 0;
-avgMargin.innerText = avg.toFixed(1);
+/* CHART */
+new Chart(document.getElementById("chart"),{
+type:"bar",
+data:{
+labels:labels,
+datasets:[{
+label:"Profit Margin %",
+data:margins
+}]
+},
+options:{responsive:true}
+});
 }
 
 function remove(index){
-if(confirm("Delete this dish analysis?")){
+if(confirm("Delete this analysis?")){
 data.splice(index,1);
 localStorage.setItem("analysis",JSON.stringify(data));
-render();
+location.reload();
 }
 }
 
