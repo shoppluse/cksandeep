@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cloud Kitchen Profit Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      padding: 20px;
+      text-align: center;
+    }
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    button {
+      padding: 12px 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    h2 { color: #333; }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h1>🍛 Cloud Kitchen Profit Calculator</h1>
+
+  <input id="cost" type="number" placeholder="Cost per plate ₹">
+  <input id="price" type="number" placeholder="Selling price ₹">
+
+  <button onclick="calculate()">Calculate Profit</button>
+
+  <h2 id="result">Profit: ₹0</h2>
+</div>
+
+<script>
+function calculate() {
+  let cost = Number(document.getElementById("cost").value);
+  let price = Number(document.getElementById("price").value);
+  let profit = price - cost;
+  document.getElementById("result").innerText = "Profit: ₹" + profit;
+}
+</script>
+
+</body>
+</html>
