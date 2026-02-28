@@ -42,37 +42,48 @@ to{opacity:1;transform:translateY(0);}
 <h1 class="text-4xl font-bold mb-2">🍛 Cloud Kitchen Planner</h1>
 <p class="mb-10 opacity-90">Your digital assistant for building a profitable food business</p>
 
-<div class="grid md:grid-cols-5 gap-8">
+<div class="grid md:grid-cols-6 gap-8">
 
+<!-- MENU -->
 <a href="menu.html" class="card p-8 rounded-2xl block">
 <div class="text-4xl mb-4">📋</div>
 <h2 class="text-xl font-semibold">Menu Items</h2>
 <p class="opacity-80">Create & calculate dish cost</p>
 </a>
 
+<!-- PROFIT -->
 <a href="profit.html" class="card p-8 rounded-2xl block">
 <div class="text-4xl mb-4">📈</div>
 <h2 class="text-xl font-semibold">Est. Monthly Profit</h2>
 <p class="opacity-80">Predict earnings</p>
 </a>
 
+<!-- BUDGET -->
 <a href="budget.html" class="card p-8 rounded-2xl block">
 <div class="text-4xl mb-4">💰</div>
 <h2 class="text-xl font-semibold">Budget Used</h2>
 <p class="opacity-80">Track expenses</p>
 </a>
 
+<!-- AVG PROFIT -->
 <a href="profit.html" class="card p-8 rounded-2xl block">
 <div class="text-4xl mb-4">📊</div>
 <h2 class="text-xl font-semibold">Avg Profit</h2>
 <p class="opacity-80">Analyze margins</p>
 </a>
 
-<!-- NEW ANALYTICS CARD -->
+<!-- ANALYTICS -->
 <a href="analytics.html" class="card p-8 rounded-2xl block">
 <div class="text-4xl mb-4">🧠</div>
 <h2 class="text-xl font-semibold">Menu Intelligence</h2>
 <p class="opacity-80">Decide best dishes</p>
+</a>
+
+<!-- GOAL PLANNER -->
+<a href="goal.html" class="card p-8 rounded-2xl block">
+<div class="text-4xl mb-4">🎯</div>
+<h2 class="text-xl font-semibold">Income Planner</h2>
+<p class="opacity-80">Plan monthly earnings</p>
 </a>
 
 </div>
@@ -81,7 +92,7 @@ to{opacity:1;transform:translateY(0);}
 
 <script>
 // preload pages so next page opens faster
-const pages=["menu.html","profit.html","budget.html","analytics.html"];
+const pages=["menu.html","profit.html","budget.html","analytics.html","goal.html"];
 pages.forEach(p=>{
 const link=document.createElement("link");
 link.rel="prefetch";
