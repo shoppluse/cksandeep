@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-indigo-100 to-indigo-200 min-h-screen p-6">
+
+<a href="index.html" class="text-indigo-700 font-semibold">← Back</a>
+
+<h1 class="text-3xl font-bold mt-4 mb-6">🧠 Menu Intelligence Dashboard</h1>
+
+<div class="bg-white rounded-2xl shadow-xl p-6 max-w-6xl">
+
+<table class="w-full text-left">
+<thead class="bg-indigo-100">
+<tr>
+<th class="p-3">Dish</th>
+<th class="p-3">Cost</th>
+<th class="p-3">Price</th>
+<th class="p-3">Profit</th>
+<th class="p-3">Margin</th>
+<th class="p-3">Status</th>
+<th class="p-3">Action</th>
+</tr>
+</thead>
+<tbody id="analyticsTable"></tbody>
+</table>
+
+</div>
+
+<div class="bg-white rounded-2xl shadow-xl p-6 max-w-6xl mt-6 text-center">
+<h2 class="text-xl font-bold">Average Margin</h2>
+<p class="text-3xl font-bold text-indigo-700"><span id="avgMargin">0</span>%</p>
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("analysis") || "[]");
+
+function render(){
+analyticsTable.innerHTML="";
+let totalMargin=0;
+
+data.forEach((d,i)=>{
+let status="";
+let color="";
+
+if(d.margin >= 45){
+status="⭐ Best Seller";
+color="text-green-600 font-bold";
+}
+else if(d.margin >= 30){
+status="👍 Good";
+color="text-blue-600 font-bold";
+}
+else{
+status="❌ Weak";
+color="text-red-600 font-bold";
+}
+
+totalMargin += d.margin;
+
+analyticsTable.innerHTML+=`
+<tr class="border-b">
+<td class="p-3">${d.dish}</td>
+<td class="p-3">₹${d.cost.toFixed(2)}</td>
+<td class="p-3">₹${d.price.toFixed(2)}</td>
+<td class="p-3">₹${d.profit.toFixed(2)}</td>
+<td class="p-3">${d.margin.toFixed(1)}%</td>
+<td class="p-3 ${color}">${status}</td>
+<td class="p-3">
+<button onclick="remove(${i})" class="text-red-600">Delete</button>
+</td>
+</tr>`;
+});
+
+let avg = data.length ? totalMargin/data.length : 0;
+avgMargin.innerText = avg.toFixed(1);
+}
+
+function remove(index){
+if(confirm("Delete this dish analysis?")){
+data.splice(index,1);
+localStorage.setItem("analysis",JSON.stringify(data));
+render();
+}
+}
+
+render();
+</script>
+
+</body>
+</html>
