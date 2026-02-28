@@ -1,157 +1,160 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Cloud Kitchen Business Planner</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { margin:0; font-family: Arial; display:flex; background:#f4f6f9;}
-    .sidebar {
-      width:220px; background:#ff5722; color:white; height:100vh;
-      padding:20px; box-sizing:border-box;
-    }
-    .sidebar h2 { margin-top:0; }
-    .sidebar button {
-      display:block; width:100%; margin:10px 0;
-      padding:10px; border:none; background:white;
-      color:#ff5722; font-weight:bold; cursor:pointer;
-      border-radius:6px;
-    }
-    .content {
-      flex:1; padding:20px;
-    }
-    .card {
-      background:white; padding:20px;
-      border-radius:10px;
-      box-shadow:0 0 10px rgba(0,0,0,0.1);
-      margin-bottom:20px;
-    }
-    input { padding:8px; margin:5px; width:140px;}
-    button.action {
-      padding:8px 15px; background:#28a745;
-      color:white; border:none; border-radius:6px;
-      cursor:pointer;
-    }
-    h1 { margin-top:0; }
-    table { width:100%; margin-top:10px; border-collapse:collapse;}
-    td,th { border-bottom:1px solid #ddd; padding:8px;}
-    .hidden { display:none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Kitchen Planner</title>
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
 </head>
+<body class="bg-gray-100 font-sans">
 
-<body>
+<div class="flex min-h-screen">
 
-<div class="sidebar">
-  <h2>Cloud Kitchen</h2>
-  <button onclick="show('dashboard')">Dashboard</button>
-  <button onclick="show('menu')">Menu Calculator</button>
-  <button onclick="show('profit')">Profit Simulator</button>
-  <button onclick="show('budget')">Budget Planner</button>
-</div>
+  <!-- Sidebar -->
+  <aside class="w-64 bg-orange-500 text-white p-5">
+    <h1 class="text-2xl font-bold mb-6">Cloud Kitchen</h1>
 
-<div class="content">
+    <nav class="space-y-3">
+      <button onclick="show('dashboard')" class="w-full text-left bg-white text-orange-500 px-3 py-2 rounded">Dashboard</button>
+      <button onclick="show('menu')" class="w-full text-left hover:bg-orange-400 px-3 py-2 rounded">Menu Calculator</button>
+      <button onclick="show('profit')" class="w-full text-left hover:bg-orange-400 px-3 py-2 rounded">Profit Simulator</button>
+      <button onclick="show('budget')" class="w-full text-left hover:bg-orange-400 px-3 py-2 rounded">Budget Planner</button>
+    </nav>
+  </aside>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="card">
-  <h1>📊 Dashboard</h1>
-  <p><b>Total Dish Cost:</b> ₹<span id="dashCost">0</span></p>
-  <p><b>Last Profit:</b> ₹<span id="dashProfit">0</span></p>
-</div>
+  <!-- Main -->
+  <main class="flex-1 p-8">
 
-<!-- MENU CALCULATOR -->
-<div id="menu" class="card hidden">
-  <h1>🍛 Menu Cost Calculator</h1>
+    <!-- DASHBOARD -->
+    <section id="dashboard">
+      <h2 class="text-3xl font-bold mb-6">Welcome to Cloud Kitchen Planner</h2>
 
-  <input id="name" placeholder="Ingredient">
-  <input id="qty" type="number" placeholder="Qty (g)">
-  <input id="price" type="number" placeholder="₹ per kg">
-  <button class="action" onclick="addIngredient()">Add</button>
+      <div class="grid md:grid-cols-4 gap-5">
 
-  <table id="table">
-    <tr>
-      <th>Ingredient</th>
-      <th>Cost ₹</th>
-    </tr>
-  </table>
+        <div class="bg-blue-500 text-white p-5 rounded-lg">
+          <h3 class="text-lg">Menu Items</h3>
+          <p class="text-2xl font-bold" id="dashItems">0</p>
+        </div>
 
-  <h2>Total Cost: ₹<span id="total">0</span></h2>
-</div>
+        <div class="bg-green-500 text-white p-5 rounded-lg">
+          <h3 class="text-lg">Est. Monthly Profit</h3>
+          <p class="text-2xl font-bold">₹<span id="dashMonthly">0</span></p>
+        </div>
 
-<!-- PROFIT SIMULATOR -->
-<div id="profit" class="card hidden">
-  <h1>💰 Profit Simulator</h1>
+        <div class="bg-purple-500 text-white p-5 rounded-lg">
+          <h3 class="text-lg">Budget Used</h3>
+          <p class="text-2xl font-bold">₹<span id="dashBudget">0</span></p>
+        </div>
 
-  <input id="sellPrice" type="number" placeholder="Selling price ₹">
-  <button class="action" onclick="calculateProfit()">Calculate</button>
+        <div class="bg-orange-500 text-white p-5 rounded-lg">
+          <h3 class="text-lg">Avg Profit</h3>
+          <p class="text-2xl font-bold">₹<span id="dashProfit">0</span></p>
+        </div>
 
-  <h2>Profit: ₹<span id="profitResult">0</span></h2>
-  <h2>Margin: <span id="margin">0</span>%</h2>
+      </div>
+    </section>
 
-  <input id="orders" type="number" placeholder="Daily Orders">
-  <button class="action" onclick="monthly()">Project Monthly</button>
+    <!-- MENU -->
+    <section id="menu" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Menu Cost Calculator</h2>
 
-  <h2>Estimated Monthly Profit: ₹<span id="monthly">0</span></h2>
-</div>
+      <div class="bg-white p-5 rounded shadow">
+        <input id="name" class="border p-2 m-1" placeholder="Ingredient">
+        <input id="qty" type="number" class="border p-2 m-1" placeholder="Qty (g)">
+        <input id="price" type="number" class="border p-2 m-1" placeholder="₹ per kg">
 
-<!-- BUDGET PLANNER -->
-<div id="budget" class="card hidden">
-  <h1>📦 Budget Planner (₹20,000)</h1>
+        <button onclick="addIngredient()" class="bg-green-500 text-white px-4 py-2 rounded">Add</button>
 
-  <input id="expense" type="number" placeholder="Expense amount">
-  <button class="action" onclick="addExpense()">Add Expense</button>
+        <table class="w-full mt-4">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="p-2 text-left">Ingredient</th>
+              <th class="p-2 text-left">Cost ₹</th>
+            </tr>
+          </thead>
+          <tbody id="table"></tbody>
+        </table>
 
-  <h2>Total Used: ₹<span id="used">0</span></h2>
-  <h2>Remaining: ₹<span id="remain">20000</span></h2>
-</div>
+        <h3 class="mt-4 text-xl">Total Cost: ₹<span id="total">0</span></h3>
+      </div>
+    </section>
 
+    <!-- PROFIT -->
+    <section id="profit" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Profit Simulator</h2>
+
+      <div class="bg-white p-5 rounded shadow">
+        <input id="sellPrice" type="number" class="border p-2 m-1" placeholder="Selling price">
+        <button onclick="calculateProfit()" class="bg-green-500 text-white px-4 py-2 rounded">Calculate</button>
+
+        <p class="mt-4 text-lg">Profit: ₹<span id="profitResult">0</span></p>
+        <p class="text-lg">Margin: <span id="margin">0</span>%</p>
+
+        <input id="orders" type="number" class="border p-2 m-1" placeholder="Daily Orders">
+        <button onclick="monthly()" class="bg-blue-500 text-white px-4 py-2 rounded">Project Monthly</button>
+
+        <p class="mt-4 text-xl">Monthly Profit: ₹<span id="monthly">0</span></p>
+      </div>
+    </section>
+
+    <!-- BUDGET -->
+    <section id="budget" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Budget Planner</h2>
+
+      <div class="bg-white p-5 rounded shadow">
+        <input id="expense" type="number" class="border p-2 m-1" placeholder="Expense amount">
+        <button onclick="addExpense()" class="bg-green-500 text-white px-4 py-2 rounded">Add</button>
+
+        <p class="mt-4">Used: ₹<span id="used">0</span></p>
+        <p>Remaining: ₹<span id="remain">20000</span></p>
+      </div>
+    </section>
+
+  </main>
 </div>
 
 <script>
-let total = 0;
-let profitValue = 0;
-let budgetUsed = 0;
+let total=0, items=0, profitValue=0, monthlyValue=0, budgetUsed=0;
 
-function show(section){
-  document.querySelectorAll('.card').forEach(el => el.classList.add('hidden'));
-  document.getElementById(section).classList.remove('hidden');
+function show(id){
+  document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
 }
 
 function addIngredient(){
-  let name = document.getElementById("name").value;
-  let qty = document.getElementById("qty").value;
-  let price = document.getElementById("price").value;
+  let n=name.value,q=qty.value,p=price.value;
+  let cost=(q/1000)*p;
+  total+=cost; items++;
 
-  let cost = (qty/1000) * price;
-  total += cost;
-
-  let row = `<tr><td>${name}</td><td>${cost.toFixed(2)}</td></tr>`;
-  document.getElementById("table").innerHTML += row;
-
-  document.getElementById("total").innerText = total.toFixed(2);
-  document.getElementById("dashCost").innerText = total.toFixed(2);
+  table.innerHTML+=`<tr><td class="p-2">${n}</td><td class="p-2">${cost.toFixed(2)}</td></tr>`;
+  document.getElementById("total").innerText=total.toFixed(2);
+  dashItems.innerText=items;
 }
 
 function calculateProfit(){
-  let sell = Number(document.getElementById("sellPrice").value);
-  profitValue = sell - total;
-  let margin = (profitValue / sell) * 100;
-
-  document.getElementById("profitResult").innerText = profitValue.toFixed(2);
-  document.getElementById("margin").innerText = margin.toFixed(1);
-  document.getElementById("dashProfit").innerText = profitValue.toFixed(2);
+  let sell=sellPrice.value;
+  profitValue=sell-total;
+  let margin=(profitValue/sell)*100;
+  profitResult.innerText=profitValue.toFixed(2);
+  margin.innerText=margin.toFixed(1);
+  dashProfit.innerText=profitValue.toFixed(0);
 }
 
 function monthly(){
-  let orders = Number(document.getElementById("orders").value);
-  let monthlyProfit = profitValue * orders * 30;
-  document.getElementById("monthly").innerText = monthlyProfit.toFixed(0);
+  let orders=document.getElementById("orders").value;
+  monthlyValue=profitValue*orders*30;
+  monthly.innerText=monthlyValue.toFixed(0);
+  dashMonthly.innerText=monthlyValue.toFixed(0);
 }
 
 function addExpense(){
-  let expense = Number(document.getElementById("expense").value);
-  budgetUsed += expense;
-
-  document.getElementById("used").innerText = budgetUsed;
-  document.getElementById("remain").innerText = 20000 - budgetUsed;
+  budgetUsed+=Number(expense.value);
+  used.innerText=budgetUsed;
+  remain.innerText=20000-budgetUsed;
+  dashBudget.innerText=budgetUsed;
 }
 </script>
 
