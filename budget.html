@@ -2,23 +2,34 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Budget Planner</title>
+<title>Budget Tracker</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 p-6">
+<body class="bg-gradient-to-br from-purple-100 to-purple-200 min-h-screen p-6">
 
-<a href="index.html" class="text-blue-500">← Back</a>
+<a href="index.html" class="text-purple-700 font-semibold">← Back</a>
 
-<h1 class="text-2xl font-bold mb-4">Budget Planner (₹20,000)</h1>
+<h1 class="text-3xl font-bold mt-4 mb-6">💰 Budget Planner (₹20,000)</h1>
 
-<div class="bg-white p-5 rounded shadow max-w-xl">
+<div class="bg-white rounded-2xl shadow-xl p-6 max-w-3xl">
 
-<input id="expense" type="number" class="border p-2 m-1" placeholder="Expense">
-<button onclick="add()" class="bg-green-500 text-white px-4 py-2 rounded">Add</button>
+<input id="expense" type="number" class="border p-3 rounded-lg" placeholder="Enter expense">
+<button onclick="add()" class="mt-4 bg-purple-500 text-white px-6 py-3 rounded-xl hover:bg-purple-600">Add Expense</button>
 
-<p class="mt-4">Used ₹<span id="used">0</span></p>
-<p>Remaining ₹<span id="remain">20000</span></p>
+<div class="grid md:grid-cols-2 gap-4 mt-6 text-center">
+
+<div class="bg-purple-100 p-4 rounded-xl">
+<h3>Used</h3>
+<p class="text-2xl font-bold">₹<span id="used">0</span></p>
+</div>
+
+<div class="bg-purple-100 p-4 rounded-xl">
+<h3>Remaining</h3>
+<p class="text-2xl font-bold">₹<span id="remain">20000</span></p>
+</div>
+
+</div>
 
 </div>
 
