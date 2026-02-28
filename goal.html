@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Income Goal Planner</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-yellow-100 to-yellow-200 min-h-screen p-6">
+
+<a href="index.html" class="text-yellow-700 font-semibold">← Back</a>
+
+<h1 class="text-3xl font-bold mt-4 mb-6">🎯 Income Target Planner</h1>
+
+<div class="bg-white rounded-2xl shadow-xl p-6 max-w-3xl">
+
+<input id="goal" type="number" class="border p-3 rounded-lg w-full mb-4" placeholder="Monthly Income Target ₹">
+
+<select id="dishSelect" class="border p-3 rounded-lg w-full mb-4"></select>
+
+<button onclick="calculate()" class="bg-yellow-500 text-white px-6 py-3 rounded-xl">Calculate Required Sales</button>
+
+<div class="mt-6 text-center">
+<p class="text-xl">Daily Plates Needed:</p>
+<p class="text-4xl font-bold text-yellow-700" id="plates">0</p>
+</div>
+
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("analysis") || "[]");
+
+data.forEach(d=>{
+let opt=document.createElement("option");
+opt.value=d.profit;
+opt.text=d.dish+" (₹"+d.profit.toFixed(0)+" profit)";
+dishSelect.appendChild(opt);
+});
+
+function calculate(){
+let goalValue=goal.value;
+let profitPerPlate=dishSelect.value;
+
+let daily=Math.ceil(goalValue/(profitPerPlate*30));
+plates.innerText=daily+" plates/day";
+}
+</script>
+
+</body>
+</html>
