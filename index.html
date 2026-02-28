@@ -1,29 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Cloud Kitchen Cost Calculator</title>
+  <title>Cloud Kitchen Business Planner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial; background:#f2f2f2; text-align:center; padding:20px;}
-    .box { background:white; padding:20px; border-radius:12px; max-width:500px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1);}
-    input { padding:8px; margin:5px; width:120px;}
-    button { padding:10px 15px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer;}
-    table { width:100%; margin-top:15px; border-collapse: collapse;}
+    body { margin:0; font-family: Arial; display:flex; background:#f4f6f9;}
+    .sidebar {
+      width:220px; background:#ff5722; color:white; height:100vh;
+      padding:20px; box-sizing:border-box;
+    }
+    .sidebar h2 { margin-top:0; }
+    .sidebar button {
+      display:block; width:100%; margin:10px 0;
+      padding:10px; border:none; background:white;
+      color:#ff5722; font-weight:bold; cursor:pointer;
+      border-radius:6px;
+    }
+    .content {
+      flex:1; padding:20px;
+    }
+    .card {
+      background:white; padding:20px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,0,0,0.1);
+      margin-bottom:20px;
+    }
+    input { padding:8px; margin:5px; width:140px;}
+    button.action {
+      padding:8px 15px; background:#28a745;
+      color:white; border:none; border-radius:6px;
+      cursor:pointer;
+    }
+    h1 { margin-top:0; }
+    table { width:100%; margin-top:10px; border-collapse:collapse;}
     td,th { border-bottom:1px solid #ddd; padding:8px;}
-    h2 { margin-top:20px;}
+    .hidden { display:none; }
   </style>
 </head>
+
 <body>
 
-<div class="box">
-  <h1>🍛 Dish Cost Calculator</h1>
+<div class="sidebar">
+  <h2>Cloud Kitchen</h2>
+  <button onclick="show('dashboard')">Dashboard</button>
+  <button onclick="show('menu')">Menu Calculator</button>
+  <button onclick="show('profit')">Profit Simulator</button>
+  <button onclick="show('budget')">Budget Planner</button>
+</div>
+
+<div class="content">
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="card">
+  <h1>📊 Dashboard</h1>
+  <p><b>Total Dish Cost:</b> ₹<span id="dashCost">0</span></p>
+  <p><b>Last Profit:</b> ₹<span id="dashProfit">0</span></p>
+</div>
+
+<!-- MENU CALCULATOR -->
+<div id="menu" class="card hidden">
+  <h1>🍛 Menu Cost Calculator</h1>
 
   <input id="name" placeholder="Ingredient">
   <input id="qty" type="number" placeholder="Qty (g)">
   <input id="price" type="number" placeholder="₹ per kg">
-
-  <br>
-  <button onclick="addIngredient()">Add</button>
+  <button class="action" onclick="addIngredient()">Add</button>
 
   <table id="table">
     <tr>
@@ -32,11 +73,47 @@
     </tr>
   </table>
 
-  <h2 id="total">Total Cost: ₹0</h2>
+  <h2>Total Cost: ₹<span id="total">0</span></h2>
+</div>
+
+<!-- PROFIT SIMULATOR -->
+<div id="profit" class="card hidden">
+  <h1>💰 Profit Simulator</h1>
+
+  <input id="sellPrice" type="number" placeholder="Selling price ₹">
+  <button class="action" onclick="calculateProfit()">Calculate</button>
+
+  <h2>Profit: ₹<span id="profitResult">0</span></h2>
+  <h2>Margin: <span id="margin">0</span>%</h2>
+
+  <input id="orders" type="number" placeholder="Daily Orders">
+  <button class="action" onclick="monthly()">Project Monthly</button>
+
+  <h2>Estimated Monthly Profit: ₹<span id="monthly">0</span></h2>
+</div>
+
+<!-- BUDGET PLANNER -->
+<div id="budget" class="card hidden">
+  <h1>📦 Budget Planner (₹20,000)</h1>
+
+  <input id="expense" type="number" placeholder="Expense amount">
+  <button class="action" onclick="addExpense()">Add Expense</button>
+
+  <h2>Total Used: ₹<span id="used">0</span></h2>
+  <h2>Remaining: ₹<span id="remain">20000</span></h2>
+</div>
+
 </div>
 
 <script>
 let total = 0;
+let profitValue = 0;
+let budgetUsed = 0;
+
+function show(section){
+  document.querySelectorAll('.card').forEach(el => el.classList.add('hidden'));
+  document.getElementById(section).classList.remove('hidden');
+}
 
 function addIngredient(){
   let name = document.getElementById("name").value;
@@ -49,7 +126,32 @@ function addIngredient(){
   let row = `<tr><td>${name}</td><td>${cost.toFixed(2)}</td></tr>`;
   document.getElementById("table").innerHTML += row;
 
-  document.getElementById("total").innerText = "Total Cost: ₹" + total.toFixed(2);
+  document.getElementById("total").innerText = total.toFixed(2);
+  document.getElementById("dashCost").innerText = total.toFixed(2);
+}
+
+function calculateProfit(){
+  let sell = Number(document.getElementById("sellPrice").value);
+  profitValue = sell - total;
+  let margin = (profitValue / sell) * 100;
+
+  document.getElementById("profitResult").innerText = profitValue.toFixed(2);
+  document.getElementById("margin").innerText = margin.toFixed(1);
+  document.getElementById("dashProfit").innerText = profitValue.toFixed(2);
+}
+
+function monthly(){
+  let orders = Number(document.getElementById("orders").value);
+  let monthlyProfit = profitValue * orders * 30;
+  document.getElementById("monthly").innerText = monthlyProfit.toFixed(0);
+}
+
+function addExpense(){
+  let expense = Number(document.getElementById("expense").value);
+  budgetUsed += expense;
+
+  document.getElementById("used").innerText = budgetUsed;
+  document.getElementById("remain").innerText = 20000 - budgetUsed;
 }
 </script>
 
