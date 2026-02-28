@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profit Simulator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-6">
+
+<a href="index.html" class="text-blue-500">← Back</a>
+
+<h1 class="text-2xl font-bold mb-4">Profit Simulator</h1>
+
+<div class="bg-white p-5 rounded shadow max-w-xl">
+
+<input id="cost" type="number" class="border p-2 m-1" placeholder="Cost per plate">
+<input id="sell" type="number" class="border p-2 m-1" placeholder="Selling price">
+
+<button onclick="calc()" class="bg-green-500 text-white px-4 py-2 rounded">Calculate</button>
+
+<p class="mt-4 text-lg">Profit ₹<span id="profit">0</span></p>
+<p class="text-lg">Margin <span id="margin">0</span>%</p>
+
+<input id="orders" type="number" class="border p-2 m-1" placeholder="Daily orders">
+<button onclick="monthly()" class="bg-blue-500 text-white px-4 py-2 rounded">Monthly</button>
+
+<p class="mt-4 text-xl">Monthly Profit ₹<span id="monthly">0</span></p>
+
+</div>
+
+<script>
+let profitValue=0;
+function calc(){
+let c=cost.value,s=sell.value;
+profitValue=s-c;
+let m=(profitValue/s)*100;
+profit.innerText=profitValue.toFixed(2);
+margin.innerText=m.toFixed(1);
+}
+function monthly(){
+monthly.innerText=(profitValue*orders.value*30).toFixed(0);
+}
+</script>
+
+</body>
+</html>
