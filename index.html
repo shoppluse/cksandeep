@@ -1,60 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Cloud Kitchen Profit Calculator</title>
+  <title>Cloud Kitchen Cost Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      font-family: Arial;
-      background: #f5f5f5;
-      padding: 20px;
-      text-align: center;
-    }
-    .box {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    input {
-      width: 80%;
-      padding: 10px;
-      margin: 10px 0;
-      font-size: 16px;
-    }
-    button {
-      padding: 12px 20px;
-      background: #28a745;
-      color: white;
-      border: none;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    h2 { color: #333; }
+    body { font-family: Arial; background:#f2f2f2; text-align:center; padding:20px;}
+    .box { background:white; padding:20px; border-radius:12px; max-width:500px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+    input { padding:8px; margin:5px; width:120px;}
+    button { padding:10px 15px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer;}
+    table { width:100%; margin-top:15px; border-collapse: collapse;}
+    td,th { border-bottom:1px solid #ddd; padding:8px;}
+    h2 { margin-top:20px;}
   </style>
 </head>
 <body>
 
 <div class="box">
-  <h1>🍛 Cloud Kitchen Profit Calculator</h1>
+  <h1>🍛 Dish Cost Calculator</h1>
 
-  <input id="cost" type="number" placeholder="Cost per plate ₹">
-  <input id="price" type="number" placeholder="Selling price ₹">
+  <input id="name" placeholder="Ingredient">
+  <input id="qty" type="number" placeholder="Qty (g)">
+  <input id="price" type="number" placeholder="₹ per kg">
 
-  <button onclick="calculate()">Calculate Profit</button>
+  <br>
+  <button onclick="addIngredient()">Add</button>
 
-  <h2 id="result">Profit: ₹0</h2>
+  <table id="table">
+    <tr>
+      <th>Ingredient</th>
+      <th>Cost ₹</th>
+    </tr>
+  </table>
+
+  <h2 id="total">Total Cost: ₹0</h2>
 </div>
 
 <script>
-function calculate() {
-  let cost = Number(document.getElementById("cost").value);
-  let price = Number(document.getElementById("price").value);
-  let profit = price - cost;
-  document.getElementById("result").innerText = "Profit: ₹" + profit;
+let total = 0;
+
+function addIngredient(){
+  let name = document.getElementById("name").value;
+  let qty = document.getElementById("qty").value;
+  let price = document.getElementById("price").value;
+
+  let cost = (qty/1000) * price;
+  total += cost;
+
+  let row = `<tr><td>${name}</td><td>${cost.toFixed(2)}</td></tr>`;
+  document.getElementById("table").innerHTML += row;
+
+  document.getElementById("total").innerText = "Total Cost: ₹" + total.toFixed(2);
 }
 </script>
 
