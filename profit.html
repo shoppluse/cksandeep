@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profit Analytics</title>
+<title>Profit Simulator</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -43,16 +43,28 @@
 <input id="orders" type="number" class="border p-3 rounded-lg mt-6" placeholder="Daily Orders">
 <button onclick="monthlyCalc()" class="mt-3 bg-blue-500 text-white px-6 py-3 rounded-xl hover:bg-blue-600">Estimate Monthly</button>
 
+<p class="mt-4 text-gray-600 text-sm">Tip: 40% margin is healthy for cloud kitchen</p>
+
 </div>
 
 <script>
+// AUTO LOAD COST FROM MENU PAGE
+const savedCost = localStorage.getItem("selectedCost");
+if(savedCost){
+document.getElementById("cost").value = savedCost;
+}
+
 let profitValue=0;
+
 function calc(){
-let c=cost.value,s=sell.value;
+let c=Number(cost.value);
+let s=Number(sell.value);
 profitValue=s-c;
+
 profit.innerText=profitValue.toFixed(2);
 margin.innerText=((profitValue/s)*100).toFixed(1);
 }
+
 function monthlyCalc(){
 monthly.innerText=(profitValue*orders.value*30).toFixed(0);
 }
