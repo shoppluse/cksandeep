@@ -4,37 +4,84 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cloud Kitchen Planner</title>
 <script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+background: linear-gradient(135deg,#ff7a18,#ffb347,#ff416c);
+min-height:100vh;
+}
+
+.card{
+backdrop-filter: blur(12px);
+background: rgba(255,255,255,0.15);
+border:1px solid rgba(255,255,255,0.25);
+transition: all .25s ease;
+}
+
+.card:hover{
+transform: translateY(-8px) scale(1.03);
+background: rgba(255,255,255,0.25);
+box-shadow:0 20px 40px rgba(0,0,0,0.25);
+}
+
+.fade{
+animation: fadeIn .6s ease;
+}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(20px);}
+to{opacity:1;transform:translateY(0);}
+}
+</style>
 </head>
 
-<body class="bg-gray-100">
+<body class="text-white">
 
-<div class="p-8">
-<h1 class="text-3xl font-bold mb-6">Cloud Kitchen Planner</h1>
+<div class="p-10 fade">
 
-<div class="grid md:grid-cols-4 gap-6">
+<h1 class="text-4xl font-bold mb-2">🍛 Cloud Kitchen Planner</h1>
+<p class="mb-10 opacity-90">Your digital assistant for building a profitable food business</p>
 
-<a href="menu.html" class="bg-blue-500 text-white p-6 rounded-lg hover:scale-105 transition block">
-<h2 class="text-lg">Menu Items</h2>
-<p class="text-sm">Open Menu Manager</p>
+<div class="grid md:grid-cols-4 gap-8">
+
+<a href="menu.html" class="card p-8 rounded-2xl block">
+<div class="text-4xl mb-4">📋</div>
+<h2 class="text-xl font-semibold">Menu Items</h2>
+<p class="opacity-80">Create & calculate dish cost</p>
 </a>
 
-<a href="profit.html" class="bg-green-500 text-white p-6 rounded-lg hover:scale-105 transition block">
-<h2 class="text-lg">Est. Monthly Profit</h2>
-<p class="text-sm">Profit Simulator</p>
+<a href="profit.html" class="card p-8 rounded-2xl block">
+<div class="text-4xl mb-4">📈</div>
+<h2 class="text-xl font-semibold">Est. Monthly Profit</h2>
+<p class="opacity-80">Predict earnings</p>
 </a>
 
-<a href="budget.html" class="bg-purple-500 text-white p-6 rounded-lg hover:scale-105 transition block">
-<h2 class="text-lg">Budget Used</h2>
-<p class="text-sm">Budget Planner</p>
+<a href="budget.html" class="card p-8 rounded-2xl block">
+<div class="text-4xl mb-4">💰</div>
+<h2 class="text-xl font-semibold">Budget Used</h2>
+<p class="opacity-80">Track expenses</p>
 </a>
 
-<a href="profit.html" class="bg-orange-500 text-white p-6 rounded-lg hover:scale-105 transition block">
-<h2 class="text-lg">Avg Profit</h2>
-<p class="text-sm">Profit Analyzer</p>
+<a href="profit.html" class="card p-8 rounded-2xl block">
+<div class="text-4xl mb-4">📊</div>
+<h2 class="text-xl font-semibold">Avg Profit</h2>
+<p class="opacity-80">Analyze margins</p>
 </a>
 
 </div>
+
 </div>
+
+<script>
+// preload pages so next page opens instantly
+const pages=["menu.html","profit.html","budget.html"];
+pages.forEach(p=>{
+const link=document.createElement("link");
+link.rel="prefetch";
+link.href=p;
+document.head.appendChild(link);
+});
+</script>
 
 </body>
 </html>
