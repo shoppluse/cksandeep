@@ -1,162 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cloud Kitchen Planner</title>
-
-<!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
-
 </head>
-<body class="bg-gray-100 font-sans">
 
-<div class="flex min-h-screen">
+<body class="bg-gray-100">
 
-  <!-- Sidebar -->
-  <aside class="w-64 bg-orange-500 text-white p-5">
-    <h1 class="text-2xl font-bold mb-6">Cloud Kitchen</h1>
+<div class="p-8">
+<h1 class="text-3xl font-bold mb-6">Cloud Kitchen Planner</h1>
 
-    <nav class="space-y-3">
-      <button onclick="show('dashboard')" class="w-full text-left bg-white text-orange-500 px-3 py-2 rounded">Dashboard</button>
-      <button onclick="show('menu')" class="w-full text-left hover:bg-orange-400 px-3 py-2 rounded">Menu Calculator</button>
-      <button onclick="show('profit')" class="w-full text-left hover:bg-orange-400 px-3 py-2 rounded">Profit Simulator</button>
-      <button onclick="show('budget')" class="w-full text-left hover:bg-orange-400 px-3 py-2 rounded">Budget Planner</button>
-    </nav>
-  </aside>
+<div class="grid md:grid-cols-4 gap-6">
 
-  <!-- Main -->
-  <main class="flex-1 p-8">
+<a href="menu.html" class="bg-blue-500 text-white p-6 rounded-lg hover:scale-105 transition block">
+<h2 class="text-lg">Menu Items</h2>
+<p class="text-sm">Open Menu Manager</p>
+</a>
 
-    <!-- DASHBOARD -->
-    <section id="dashboard">
-      <h2 class="text-3xl font-bold mb-6">Welcome to Cloud Kitchen Planner</h2>
+<a href="profit.html" class="bg-green-500 text-white p-6 rounded-lg hover:scale-105 transition block">
+<h2 class="text-lg">Est. Monthly Profit</h2>
+<p class="text-sm">Profit Simulator</p>
+</a>
 
-      <div class="grid md:grid-cols-4 gap-5">
+<a href="budget.html" class="bg-purple-500 text-white p-6 rounded-lg hover:scale-105 transition block">
+<h2 class="text-lg">Budget Used</h2>
+<p class="text-sm">Budget Planner</p>
+</a>
 
-        <div class="bg-blue-500 text-white p-5 rounded-lg">
-          <h3 class="text-lg">Menu Items</h3>
-          <p class="text-2xl font-bold" id="dashItems">0</p>
-        </div>
+<a href="profit.html" class="bg-orange-500 text-white p-6 rounded-lg hover:scale-105 transition block">
+<h2 class="text-lg">Avg Profit</h2>
+<p class="text-sm">Profit Analyzer</p>
+</a>
 
-        <div class="bg-green-500 text-white p-5 rounded-lg">
-          <h3 class="text-lg">Est. Monthly Profit</h3>
-          <p class="text-2xl font-bold">₹<span id="dashMonthly">0</span></p>
-        </div>
-
-        <div class="bg-purple-500 text-white p-5 rounded-lg">
-          <h3 class="text-lg">Budget Used</h3>
-          <p class="text-2xl font-bold">₹<span id="dashBudget">0</span></p>
-        </div>
-
-        <div class="bg-orange-500 text-white p-5 rounded-lg">
-          <h3 class="text-lg">Avg Profit</h3>
-          <p class="text-2xl font-bold">₹<span id="dashProfit">0</span></p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- MENU -->
-    <section id="menu" class="hidden">
-      <h2 class="text-2xl font-bold mb-4">Menu Cost Calculator</h2>
-
-      <div class="bg-white p-5 rounded shadow">
-        <input id="name" class="border p-2 m-1" placeholder="Ingredient">
-        <input id="qty" type="number" class="border p-2 m-1" placeholder="Qty (g)">
-        <input id="price" type="number" class="border p-2 m-1" placeholder="₹ per kg">
-
-        <button onclick="addIngredient()" class="bg-green-500 text-white px-4 py-2 rounded">Add</button>
-
-        <table class="w-full mt-4">
-          <thead class="bg-gray-200">
-            <tr>
-              <th class="p-2 text-left">Ingredient</th>
-              <th class="p-2 text-left">Cost ₹</th>
-            </tr>
-          </thead>
-          <tbody id="table"></tbody>
-        </table>
-
-        <h3 class="mt-4 text-xl">Total Cost: ₹<span id="total">0</span></h3>
-      </div>
-    </section>
-
-    <!-- PROFIT -->
-    <section id="profit" class="hidden">
-      <h2 class="text-2xl font-bold mb-4">Profit Simulator</h2>
-
-      <div class="bg-white p-5 rounded shadow">
-        <input id="sellPrice" type="number" class="border p-2 m-1" placeholder="Selling price">
-        <button onclick="calculateProfit()" class="bg-green-500 text-white px-4 py-2 rounded">Calculate</button>
-
-        <p class="mt-4 text-lg">Profit: ₹<span id="profitResult">0</span></p>
-        <p class="text-lg">Margin: <span id="margin">0</span>%</p>
-
-        <input id="orders" type="number" class="border p-2 m-1" placeholder="Daily Orders">
-        <button onclick="monthly()" class="bg-blue-500 text-white px-4 py-2 rounded">Project Monthly</button>
-
-        <p class="mt-4 text-xl">Monthly Profit: ₹<span id="monthly">0</span></p>
-      </div>
-    </section>
-
-    <!-- BUDGET -->
-    <section id="budget" class="hidden">
-      <h2 class="text-2xl font-bold mb-4">Budget Planner</h2>
-
-      <div class="bg-white p-5 rounded shadow">
-        <input id="expense" type="number" class="border p-2 m-1" placeholder="Expense amount">
-        <button onclick="addExpense()" class="bg-green-500 text-white px-4 py-2 rounded">Add</button>
-
-        <p class="mt-4">Used: ₹<span id="used">0</span></p>
-        <p>Remaining: ₹<span id="remain">20000</span></p>
-      </div>
-    </section>
-
-  </main>
 </div>
-
-<script>
-let total=0, items=0, profitValue=0, monthlyValue=0, budgetUsed=0;
-
-function show(id){
-  document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-}
-
-function addIngredient(){
-  let n=name.value,q=qty.value,p=price.value;
-  let cost=(q/1000)*p;
-  total+=cost; items++;
-
-  table.innerHTML+=`<tr><td class="p-2">${n}</td><td class="p-2">${cost.toFixed(2)}</td></tr>`;
-  document.getElementById("total").innerText=total.toFixed(2);
-  dashItems.innerText=items;
-}
-
-function calculateProfit(){
-  let sell=sellPrice.value;
-  profitValue=sell-total;
-  let margin=(profitValue/sell)*100;
-  profitResult.innerText=profitValue.toFixed(2);
-  margin.innerText=margin.toFixed(1);
-  dashProfit.innerText=profitValue.toFixed(0);
-}
-
-function monthly(){
-  let orders=document.getElementById("orders").value;
-  monthlyValue=profitValue*orders*30;
-  monthly.innerText=monthlyValue.toFixed(0);
-  dashMonthly.innerText=monthlyValue.toFixed(0);
-}
-
-function addExpense(){
-  budgetUsed+=Number(expense.value);
-  used.innerText=budgetUsed;
-  remain.innerText=20000-budgetUsed;
-  dashBudget.innerText=budgetUsed;
-}
-</script>
+</div>
 
 </body>
 </html>
