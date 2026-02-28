@@ -42,7 +42,7 @@ to{opacity:1;transform:translateY(0);}
 <h1 class="text-4xl font-bold mb-2">🍛 Cloud Kitchen Planner</h1>
 <p class="mb-10 opacity-90">Your digital assistant for building a profitable food business</p>
 
-<div class="grid md:grid-cols-4 gap-8">
+<div class="grid md:grid-cols-5 gap-8">
 
 <a href="menu.html" class="card p-8 rounded-2xl block">
 <div class="text-4xl mb-4">📋</div>
@@ -68,13 +68,20 @@ to{opacity:1;transform:translateY(0);}
 <p class="opacity-80">Analyze margins</p>
 </a>
 
+<!-- NEW ANALYTICS CARD -->
+<a href="analytics.html" class="card p-8 rounded-2xl block">
+<div class="text-4xl mb-4">🧠</div>
+<h2 class="text-xl font-semibold">Menu Intelligence</h2>
+<p class="opacity-80">Decide best dishes</p>
+</a>
+
 </div>
 
 </div>
 
 <script>
-// preload pages so next page opens instantly
-const pages=["menu.html","profit.html","budget.html"];
+// preload pages so next page opens faster
+const pages=["menu.html","profit.html","budget.html","analytics.html"];
 pages.forEach(p=>{
 const link=document.createElement("link");
 link.rel="prefetch";
