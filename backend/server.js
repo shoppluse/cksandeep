@@ -48,10 +48,19 @@ app.get("/", (req, res) => {
 // ===== CREATE DISH =====
 app.post("/api/dishes", async (req, res) => {
     try {
-        const dish = new Dish(req.body);
+
+        const dish = new Dish({
+            name: req.body.name,
+            category: req.body.category,
+            price: Number(req.body.price), // IMPORTANT FIX
+            available: true
+        });
+
         const savedDish = await dish.save();
         res.status(201).json(savedDish);
+
     } catch (err) {
+        console.log("CREATE ERROR:", err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -82,9 +91,21 @@ app.get("/api/dishes/:id", async (req, res) => {
 // ===== UPDATE DISH =====
 app.put("/api/dishes/:id", async (req, res) => {
     try {
-        const updated = await Dish.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+        const updated = await Dish.findByIdAndUpdate(
+            req.params.id,
+            {
+                name: req.body.name,
+                category: req.body.category,
+                price: Number(req.body.price) // IMPORTANT FIX
+            },
+            { new: true }
+        );
+
         res.json(updated);
+
     } catch (err) {
+        console.log("UPDATE ERROR:", err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -104,4 +125,5 @@ app.delete("/api/dishes/:id", async (req, res) => {
 // ===== START SERVER =====
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT} 🔥`));
+
 
