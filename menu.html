@@ -4,8 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kitchen Admin</title>
-
+<title>Cloud Kitchen Admin</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
@@ -16,74 +15,96 @@ font-family:sans-serif;
 color:white;
 }
 
-.glass{
-background: rgba(255,255,255,0.15);
-backdrop-filter: blur(16px);
+/* FORM CARD */
+.form-card{
+background: rgba(255,255,255,0.18);
+backdrop-filter: blur(15px);
 border-radius:22px;
-box-shadow:0 20px 40px rgba(0,0,0,0.2);
+padding:30px;
+max-width:520px;
+margin:auto;
+box-shadow:0 15px 40px rgba(0,0,0,0.25);
 }
 
-.card{
-transition:all .25s ease;
-}
-.card:hover{
-transform:translateY(-6px) scale(1.02);
-box-shadow:0 20px 40px rgba(0,0,0,.25);
+/* INPUT STYLE */
+.input-field{
+width:100%;
+padding:14px;
+border-radius:12px;
+color:black;
+background:white;
+outline:none;
+margin-top:6px;
 }
 
-.badge{
-padding:4px 10px;
-border-radius:999px;
-font-size:12px;
+.input-label{
+font-size:14px;
+opacity:0.9;
+}
+
+/* BUTTON */
+.save-btn{
+background: linear-gradient(135deg,#00c853,#009624);
+padding:14px;
+border-radius:14px;
+width:100%;
 font-weight:bold;
+margin-top:10px;
+transition:0.25s;
 }
 
-.rice{background:#22c55e}
-.curry{background:#ef4444}
-.snacks{background:#eab308}
-.dessert{background:#a855f7}
-.default{background:#3b82f6}
+.save-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 20px rgba(0,0,0,0.25);
+}
+
+/* DISH CARD */
+.dish-card{
+background: rgba(255,255,255,0.2);
+backdrop-filter: blur(10px);
+padding:18px;
+border-radius:18px;
+transition:0.25s;
+}
+
+.dish-card:hover{
+transform:scale(1.03);
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
 </style>
 
 </head>
 
-<body class="p-6">
+<body class="p-8">
 
-<h1 class="text-4xl font-bold mb-6 text-center">🍛 Kitchen Admin Panel</h1>
+<h1 class="text-4xl font-bold mb-8 text-center">🍛 Kitchen Admin Panel</h1>
 
-<!-- STATS -->
+<!-- ADD / EDIT FORM -->
 
-<div class="grid md:grid-cols-2 gap-4 mb-8">
-<div class="glass p-5 text-center">
-<h2 class="text-xl">Total Dishes</h2>
-<p id="total" class="text-3xl font-bold">0</p>
-</div>
-<div class="glass p-5 text-center">
-<h2 class="text-xl">Potential Revenue</h2>
-<p id="revenue" class="text-3xl font-bold">₹0</p>
-</div>
-</div>
+<div class="form-card mb-12">
 
-<!-- ADD FORM -->
+<h2 id="formTitle" class="text-2xl font-bold mb-6 text-center">Add New Dish</h2>
 
-<div class="glass p-6 max-w-xl mx-auto mb-10">
-<h2 class="text-2xl mb-4">Add / Edit Dish</h2>
+<label class="input-label">Dish Name</label> <input id="name" class="input-field" placeholder="Paneer Butter Masala">
 
-<input id="name" placeholder="Dish name" class="w-full p-3 rounded-lg text-black mb-3">
-<input id="category" placeholder="Category (Rice/Curry/Dessert)" class="w-full p-3 rounded-lg text-black mb-3">
-<input id="price" type="number" placeholder="Price ₹" class="w-full p-3 rounded-lg text-black mb-3">
+<label class="input-label">Category</label> <select id="category" class="input-field">
 
-<button onclick="saveDish()" id="saveBtn"
-class="w-full bg-green-500 hover:bg-green-600 p-3 rounded-xl font-bold">
-Save Dish </button>
+<option>Rice</option>
+<option>Curry</option>
+<option>Breads</option>
+<option>Chinese</option>
+<option>Beverage</option>
+<option>Dessert</option>
+</select>
+
+<label class="input-label">Price (₹)</label> <input id="price" type="number" class="input-field" placeholder="150">
+
+<button onclick="saveDish()" class="save-btn">Save Dish</button>
 
 <input type="hidden" id="dishId">
+
 </div>
-
-<!-- SEARCH -->
-
-<input id="search" oninput="loadMenu()" placeholder="🔍 Search dishes..."
-class="w-full max-w-xl mx-auto block mb-6 p-3 rounded-lg text-black">
 
 <!-- MENU -->
 
@@ -91,96 +112,93 @@ class="w-full max-w-xl mx-auto block mb-6 p-3 rounded-lg text-black">
 
 <script>
 
-const API="https://cloud-kitchen-w9zx.onrender.com/api/dishes";
+const API="https://cloud-kitchen-cjs2.onrender.com/api/dishes";
+let backendReady=false;
 
-let saving=false;
-
-function categoryClass(cat){
-cat=cat.toLowerCase();
-if(cat.includes("rice")) return "rice";
-if(cat.includes("curry")) return "curry";
-if(cat.includes("dessert")) return "dessert";
-if(cat.includes("snack")) return "snacks";
-return "default";
+/* ---------------- WAKE SERVER ---------------- */
+async function wakeBackend(){
+try{
+await fetch(API);
+backendReady=true;
+console.log("Backend Awake");
+}catch{
+console.log("Waking backend...");
+setTimeout(wakeBackend,4000);
 }
+}
+wakeBackend();
 
+
+/* ---------------- LOAD MENU ---------------- */
 async function loadMenu(){
+try{
 const res=await fetch(API);
 const dishes=await res.json();
-
-const search=document.getElementById("search").value.toLowerCase();
 
 const container=document.getElementById("menu-list");
 container.innerHTML="";
 
-let total=0;
-
-dishes
-.filter(d=>d.name.toLowerCase().includes(search))
-.forEach(dish=>{
-
-total+=dish.price;
-
+dishes.forEach(dish=>{
 const card=document.createElement("div");
-card.className="glass card p-5";
+card.className="card";
 
 card.innerHTML=`
-<h2 class="text-xl font-bold mb-2">${dish.name}</h2>
-<span class="badge ${categoryClass(dish.category)}">${dish.category}</span>
-<p class="text-2xl font-bold mt-3">₹${dish.price}</p>
+<h2 class="text-xl font-bold">${dish.name}</h2>
+<p>Category: ${dish.category}</p>
+<p class="text-lg font-semibold mb-3">₹${dish.price}</p>
 
-<div class="mt-4 flex gap-2">
-<button onclick='editDish(${JSON.stringify(dish)})'
-class="bg-yellow-400 px-3 py-2 rounded">Edit</button>
-
-<button onclick="deleteDish('${dish._id}')"
-class="bg-red-500 px-3 py-2 rounded">Delete</button>
-</div>
+<button onclick='editDish(${JSON.stringify(dish)})' class="bg-yellow-400 px-3 py-1 rounded mr-2">Edit</button>
+<button onclick="deleteDish('${dish._id}')" class="bg-red-500 px-3 py-1 rounded">Delete</button>
 `;
 
 container.appendChild(card);
 });
 
-document.getElementById("total").innerText=dishes.length;
-document.getElementById("revenue").innerText="₹"+total;
+}catch{
+alert("Server starting... please wait 10 seconds then refresh");
+}
 }
 
-async function saveDish(){
-if(saving) return;
-saving=true;
 
-const btn=document.getElementById("saveBtn");
-btn.innerText="Saving...";
-btn.disabled=true;
+/* ---------------- SAVE DISH ---------------- */
+async function saveDish(){
+
+if(!backendReady){
+alert("Starting server... wait 10 seconds and try again");
+return;
+}
 
 const id=document.getElementById("dishId").value;
-const name=document.getElementById("name").value.trim();
-const category=document.getElementById("category").value.trim();
-const price=document.getElementById("price").value.trim();
+const name=document.getElementById("name").value;
+const category=document.getElementById("category").value;
+const price=document.getElementById("price").value;
 
 if(!name||!category||!price){
 alert("Fill all fields");
-saving=false;
-btn.innerText="Save Dish";
-btn.disabled=false;
 return;
 }
 
 const data={name,category,price};
 
+try{
+
+let res;
+
 if(id){
-await fetch(API+"/"+id,{
+res=await fetch(API+"/"+id,{
 method:"PUT",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(data)
 });
 }else{
-await fetch(API,{
+res=await fetch(API,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(data)
 });
 }
+
+if(!res.ok) throw new Error();
 
 document.getElementById("dishId").value="";
 document.getElementById("name").value="";
@@ -189,31 +207,30 @@ document.getElementById("price").value="";
 
 loadMenu();
 
-saving=false;
-btn.innerText="Save Dish";
-btn.disabled=false;
+}catch{
+alert("Server waking up... press save again in 5 sec");
 }
 
-function editDish(d){
-document.getElementById("dishId").value=d._id;
-document.getElementById("name").value=d.name;
-document.getElementById("category").value=d.category;
-document.getElementById("price").value=d.price;
-window.scrollTo({top:0,behavior:"smooth"});
 }
 
+
+/* ---------------- EDIT ---------------- */
+function editDish(dish){
+document.getElementById("dishId").value=dish._id;
+document.getElementById("name").value=dish.name;
+document.getElementById("category").value=dish.category;
+document.getElementById("price").value=dish.price;
+}
+
+
+/* ---------------- DELETE ---------------- */
 async function deleteDish(id){
-if(confirm("Delete this dish?")){
 await fetch(API+"/"+id,{method:"DELETE"});
 loadMenu();
 }
-}
-
-setInterval(()=>fetch(API).catch(()=>{}),240000);
 
 loadMenu();
 
 </script>
-
 </body>
 </html>
