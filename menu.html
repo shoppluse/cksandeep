@@ -1,136 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Menu Builder</title>
+<title>Cloud Kitchen Menu</title>
 <script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+background: linear-gradient(135deg,#ff7a18,#ffb347,#ff416c);
+min-height:100vh;
+color:white;
+font-family:sans-serif;
+}
+
+.card{
+backdrop-filter: blur(12px);
+background: rgba(255,255,255,0.15);
+border:1px solid rgba(255,255,255,0.25);
+transition: all .25s ease;
+}
+
+.card:hover{
+transform: translateY(-6px) scale(1.02);
+background: rgba(255,255,255,0.25);
+box-shadow:0 20px 40px rgba(0,0,0,0.25);
+}
+</style>
 </head>
 
-<body class="bg-gradient-to-br from-orange-100 to-orange-200 min-h-screen p-6">
+<body class="p-8">
 
-<a href="index.html" class="text-orange-700 font-semibold">← Back</a>
+<h1 class="text-4xl font-bold mb-8">🍛 Our Menu</h1>
 
-<h1 class="text-3xl font-bold mt-4 mb-6">📋 Dish Cost Builder</h1>
+<div id="menu-list" class="grid md:grid-cols-3 gap-6"></div>
 
-<div class="bg-white rounded-2xl shadow-xl p-6 max-w-3xl">
-
-<input id="dishName" class="border p-3 rounded-lg w-full mb-4" placeholder="Dish Name (Veg Biryani)">
-
-<div class="grid md:grid-cols-3 gap-3">
-<input id="name" class="border p-3 rounded-lg" placeholder="Ingredient">
-<input id="qty" type="number" class="border p-3 rounded-lg" placeholder="Qty (g)">
-<input id="price" type="number" class="border p-3 rounded-lg" placeholder="₹ per kg">
-</div>
-
-<button onclick="add()" class="mt-4 bg-orange-500 text-white px-6 py-3 rounded-xl hover:bg-orange-600">Add Ingredient</button>
-
-<table class="w-full mt-6">
-<thead class="bg-orange-100">
-<tr><th class="p-3 text-left">Ingredient</th><th class="p-3 text-right">Cost</th></tr>
-</thead>
-<tbody id="table"></tbody>
-</table>
-
-<div class="mt-6 text-2xl font-bold text-orange-700">
-Total Cost ₹<span id="total">0</span>
-</div>
-
-<button onclick="saveDish()" class="mt-4 bg-green-500 text-white px-6 py-3 rounded-xl">Save Dish</button>
-
-</div>
-
-<!-- Saved dishes -->
-<div class="bg-white rounded-2xl shadow-xl p-6 max-w-3xl mt-8">
-<h2 class="text-xl font-bold mb-3">Saved Dishes</h2>
-<ul id="dishList"></ul>
-</div>
 
 <script>
-let total = 0;
-let currentIngredients = [];
 
-/* ===== INGREDIENT DATABASE ===== */
-const ingredientDB={
-"Rice":70,"Basmati Rice":120,"Wheat Flour":45,"Maida":40,"Rava":50,
-"Toor Dal":130,"Moong Dal":140,"Chana Dal":95,"Urad Dal":150,
-"Potato":30,"Onion":35,"Tomato":40,"Carrot":50,"Beans":60,"Cabbage":40,
-"Capsicum":80,"Green Peas":90,"Beetroot":45,"Cauliflower":70,
-"Ginger":120,"Garlic":140,"Green Chilli":80,"Coriander Leaves":120,"Mint":150,
-"Paneer":320,"Butter":520,"Cheese":450,"Milk":60,"Curd":70,
-"Cooking Oil":150,"Ghee":600,
-"Turmeric":300,"Red Chilli Powder":420,"Coriander Powder":280,"Garam Masala":600,
-"Biryani Masala":520,"Sambar Powder":400,"Rasam Powder":380,
-"Salt":20,"Sugar":45,"Jaggery":60,
-"Lemon":5,"Tamarind":200,
-"Cashew":900,"Raisin":700,"Peanut":160,
-"Soy Sauce":220,"Vinegar":120,"Chilli Sauce":180,"Tomato Sauce":140
-};
+async function loadMenu() {
 
-/* datalist suggestions */
-const list=document.createElement("datalist");
-list.id="ingredients";
-document.body.appendChild(list);
-Object.keys(ingredientDB).forEach(item=>{
-let opt=document.createElement("option");
-opt.value=item;
-list.appendChild(opt);
-});
-document.getElementById("name").setAttribute("list","ingredients");
+    try {
+        const response = await fetch("http://localhost:5000/api/dishes");
+        const dishes = await response.json();
 
-/* add ingredient */
-function add(){
-let n=name.value;
-let q=qty.value;
-let p=price.value;
+        const container = document.getElementById("menu-list");
+        container.innerHTML = "";
 
-if(ingredientDB[n] && !p){
-p=ingredientDB[n];
-price.value=p;
+        if(dishes.length === 0){
+            container.innerHTML = "<p>No dishes added yet</p>";
+            return;
+        }
+
+        dishes.forEach(dish => {
+
+            const card = document.createElement("div");
+            card.className = "card p-6 rounded-2xl";
+
+            card.innerHTML = `
+                <h2 class="text-2xl font-semibold mb-2">${dish.name}</h2>
+                <p class="opacity-80 mb-2">Category: ${dish.category}</p>
+                <p class="text-xl font-bold">₹${dish.price}</p>
+            `;
+
+            container.appendChild(card);
+        });
+
+    } catch(err) {
+        console.error("Error loading menu:", err);
+        document.getElementById("menu-list").innerHTML = "⚠️ Backend not running";
+    }
 }
 
-let cost=(q/1000)*p;
-total+=cost;
-currentIngredients.push({n,q,p,cost});
+loadMenu();
 
-table.innerHTML+=`<tr class="border-b"><td class="p-3">${n}</td><td class="p-3 text-right">₹${cost.toFixed(2)}</td></tr>`;
-document.getElementById("total").innerText=total.toFixed(2);
-
-name.value=""; qty.value=""; price.value="";
-}
-
-/* save dish */
-function saveDish(){
-let dish=dishName.value;
-if(!dish)return alert("Enter dish name");
-
-let dishes=JSON.parse(localStorage.getItem("dishes")||"[]");
-dishes.push({dish,total,ingredients:currentIngredients});
-localStorage.setItem("dishes",JSON.stringify(dishes));
-
-alert("Dish Saved!");
-location.reload();
-}
-
-/* show dishes */
-function loadDishes(){
-let dishes=JSON.parse(localStorage.getItem("dishes")||"[]");
-dishList.innerHTML="";
-dishes.forEach((d,i)=>{
-dishList.innerHTML+=`<li class="border-b p-2 flex justify-between">
-<span>${d.dish} - ₹${d.total.toFixed(2)}</span>
-<button onclick="useDish(${i})" class="text-blue-600">Use</button>
-</li>`;
-});
-}
-
-/* send to profit page */
-function useDish(i){
-let dishes=JSON.parse(localStorage.getItem("dishes")||"[]");
-localStorage.setItem("selectedCost",dishes[i].total);
-window.location="profit.html";
-}
-
-loadDishes();
 </script>
 
 </body>
