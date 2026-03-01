@@ -3,126 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cloud Kitchen Menu</title>
+<title>Cloud Kitchen Admin</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
 body{
 background: linear-gradient(135deg,#ff7a18,#ffb347,#ff416c);
 min-height:100vh;
-color:white;
 font-family:sans-serif;
+color:white;
 }
 
+/* GLASS CARD */
 .card{
-backdrop-filter: blur(12px);
 background: rgba(255,255,255,0.15);
-border:1px solid rgba(255,255,255,0.25);
-transition: all .25s ease;
+backdrop-filter: blur(12px);
+border-radius:18px;
+padding:20px;
 }
 
-.card:hover{
-transform: translateY(-6px) scale(1.02);
-background: rgba(255,255,255,0.25);
-box-shadow:0 20px 40px rgba(0,0,0,0.25);
-}
-
-/* INPUT FIX */
+/* FORCE INPUT VISIBILITY */
 input{
-color:black;
-background:white;
-padding:8px;
+background:#ffffff !important;
+color:#000000 !important;
+padding:10px;
 border-radius:8px;
-outline:none;
+margin-bottom:10px;
+width:100%;
 }
 
 input::placeholder{
-color:#555;
+color:#444 !important;
 }
 
 button{
-color:white;
+margin-top:8px;
 }
 </style>
 </head>
 
 <body class="p-8">
 
-<h1 class="text-4xl font-bold mb-6">🍛 Cloud Kitchen Menu</h1>
+<h1 class="text-4xl font-bold mb-6">🍛 Kitchen Admin Panel</h1>
 
-<!-- ADD DISH FORM -->
-<div class="card p-6 rounded-2xl mb-8 max-w-xl">
-<h2 class="text-2xl font-semibold mb-4">Add New Dish</h2>
+<!-- ADD / EDIT FORM -->
+<div class="card max-w-xl mb-10">
+<h2 class="text-2xl mb-4">Add / Edit Dish</h2>
 
-<input id="name" placeholder="Dish Name" class="w-full mb-3">
-<input id="category" placeholder="Category" class="w-full mb-3">
-<input id="price" type="number" placeholder="Price" class="w-full mb-3">
+<input id="name" placeholder="Dish Name">
+<input id="category" placeholder="Category">
+<input id="price" type="number" placeholder="Price">
 
-<button onclick="addDish()" class="bg-green-500 px-4 py-2 rounded w-full">
-Add Dish
+<button onclick="saveDish()" class="bg-green-500 px-4 py-2 rounded w-full">
+Save Dish
 </button>
+
+<input type="hidden" id="dishId">
+
 </div>
 
-<!-- MENU LIST -->
+<!-- MENU -->
 <div id="menu-list" class="grid md:grid-cols-3 gap-6"></div>
 
 <script>
 
-async function loadMenu() {
-    try {
-        const res = await fetch("http://localhost:5000/api/dishes");
-        const dishes = await res.json();
+const API="http://localhost:5000/api/dishes";
 
-        const container = document.getElementById("menu-list");
-        container.innerHTML = "";
+async function loadMenu(){
+const res=await fetch(API);
+const dishes=await res.json();
 
-        dishes.forEach(dish => {
-            const card = document.createElement("div");
-            card.className = "card p-6 rounded-2xl";
+const container=document.getElementById("menu-list");
+container.innerHTML="";
 
-            card.innerHTML = `
-                <h2 class="text-2xl font-semibold mb-2">${dish.name}</h2>
-                <p class="opacity-80 mb-2">Category: ${dish.category}</p>
-                <p class="text-xl font-bold">₹${dish.price}</p>
-            `;
+dishes.forEach(dish=>{
+const card=document.createElement("div");
+card.className="card";
 
-            container.appendChild(card);
-        });
+card.innerHTML=`
+<h2 class="text-xl font-bold">${dish.name}</h2>
+<p>Category: ${dish.category}</p>
+<p class="text-lg font-semibold mb-3">₹${dish.price}</p>
 
-    } catch(err) {
-        document.getElementById("menu-list").innerHTML = "⚠️ Backend not running";
-    }
+<button onclick='editDish(${JSON.stringify(dish)})' class="bg-yellow-400 px-3 py-1 rounded mr-2">Edit</button>
+<button onclick="deleteDish('${dish._id}')" class="bg-red-500 px-3 py-1 rounded">Delete</button>
+`;
+
+container.appendChild(card);
+});
 }
 
+async function saveDish(){
 
-async function addDish() {
+const id=document.getElementById("dishId").value;
+const name=document.getElementById("name").value;
+const category=document.getElementById("category").value;
+const price=document.getElementById("price").value;
 
-    const name = document.getElementById("name").value;
-    const category = document.getElementById("category").value;
-    const price = document.getElementById("price").value;
+if(!name||!category||!price){
+alert("Fill all fields");
+return;
+}
 
-    if(!name || !category || !price){
-        alert("Please fill all fields");
-        return;
-    }
+const data={name,category,price};
 
-    await fetch("http://localhost:5000/api/dishes", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            name,
-            category,
-            price
-        })
-    });
+if(id){
+await fetch(API+"/"+id,{
+method:"PUT",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+}else{
+await fetch(API,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+}
 
-    document.getElementById("name").value="";
-    document.getElementById("category").value="";
-    document.getElementById("price").value="";
+document.getElementById("dishId").value="";
+document.getElementById("name").value="";
+document.getElementById("category").value="";
+document.getElementById("price").value="";
 
-    loadMenu();
+loadMenu();
+}
+
+function editDish(dish){
+document.getElementById("dishId").value=dish._id;
+document.getElementById("name").value=dish.name;
+document.getElementById("category").value=dish.category;
+document.getElementById("price").value=dish.price;
+}
+
+async function deleteDish(id){
+if(confirm("Delete this dish?")){
+await fetch(API+"/"+id,{method:"DELETE"});
+loadMenu();
+}
 }
 
 loadMenu();
