@@ -27,10 +27,13 @@ background: rgba(255,255,255,0.25);
 box-shadow:0 20px 40px rgba(0,0,0,0.25);
 }
 
-/* 🔥 INPUT FIX */
+/* INPUT FIX */
 input{
 color:black;
 background:white;
+padding:8px;
+border-radius:8px;
+outline:none;
 }
 
 input::placeholder{
@@ -51,11 +54,11 @@ color:white;
 <div class="card p-6 rounded-2xl mb-8 max-w-xl">
 <h2 class="text-2xl font-semibold mb-4">Add New Dish</h2>
 
-<input id="name" placeholder="Dish Name" class="w-full p-2 mb-3 rounded">
-<input id="category" placeholder="Category" class="w-full p-2 mb-3 rounded">
-<input id="price" type="number" placeholder="Price" class="w-full p-2 mb-3 rounded">
+<input id="name" placeholder="Dish Name" class="w-full mb-3">
+<input id="category" placeholder="Category" class="w-full mb-3">
+<input id="price" type="number" placeholder="Price" class="w-full mb-3">
 
-<button onclick="addDish()" class="bg-green-500 text-white px-4 py-2 rounded w-full">
+<button onclick="addDish()" class="bg-green-500 px-4 py-2 rounded w-full">
 Add Dish
 </button>
 </div>
@@ -66,24 +69,29 @@ Add Dish
 <script>
 
 async function loadMenu() {
-    const res = await fetch("http://localhost:5000/api/dishes");
-    const dishes = await res.json();
+    try {
+        const res = await fetch("http://localhost:5000/api/dishes");
+        const dishes = await res.json();
 
-    const container = document.getElementById("menu-list");
-    container.innerHTML = "";
+        const container = document.getElementById("menu-list");
+        container.innerHTML = "";
 
-    dishes.forEach(dish => {
-        const card = document.createElement("div");
-        card.className = "card p-6 rounded-2xl";
+        dishes.forEach(dish => {
+            const card = document.createElement("div");
+            card.className = "card p-6 rounded-2xl";
 
-        card.innerHTML = `
-            <h2 class="text-2xl font-semibold mb-2">${dish.name}</h2>
-            <p class="opacity-80 mb-2">Category: ${dish.category}</p>
-            <p class="text-xl font-bold">₹${dish.price}</p>
-        `;
+            card.innerHTML = `
+                <h2 class="text-2xl font-semibold mb-2">${dish.name}</h2>
+                <p class="opacity-80 mb-2">Category: ${dish.category}</p>
+                <p class="text-xl font-bold">₹${dish.price}</p>
+            `;
 
-        container.appendChild(card);
-    });
+            container.appendChild(card);
+        });
+
+    } catch(err) {
+        document.getElementById("menu-list").innerHTML = "⚠️ Backend not running";
+    }
 }
 
 
@@ -92,6 +100,11 @@ async function addDish() {
     const name = document.getElementById("name").value;
     const category = document.getElementById("category").value;
     const price = document.getElementById("price").value;
+
+    if(!name || !category || !price){
+        alert("Please fill all fields");
+        return;
+    }
 
     await fetch("http://localhost:5000/api/dishes", {
         method: "POST",
@@ -105,7 +118,6 @@ async function addDish() {
         })
     });
 
-    // clear form
     document.getElementById("name").value="";
     document.getElementById("category").value="";
     document.getElementById("price").value="";
