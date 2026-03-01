@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -14,100 +15,99 @@ font-family:sans-serif;
 color:white;
 }
 
-/* GLASS CARD */
-.card{
-background: rgba(255,255,255,0.15);
-backdrop-filter: blur(12px);
-border-radius:18px;
-padding:20px;
+/* FORM CARD */
+.form-card{
+background: rgba(255,255,255,0.18);
+backdrop-filter: blur(15px);
+border-radius:22px;
+padding:30px;
+max-width:520px;
+margin:auto;
+box-shadow:0 15px 40px rgba(0,0,0,0.25);
 }
 
-/* FORCE INPUT VISIBILITY */
-input{
-background:#ffffff !important;
-color:#000000 !important;
-padding:10px;
-border-radius:8px;
-margin-bottom:10px;
+/* INPUT STYLE */
+.input-field{
 width:100%;
+padding:14px;
+border-radius:12px;
+color:black;
+background:white;
+outline:none;
+margin-top:6px;
 }
 
-input::placeholder{
-color:#444 !important;
+.input-label{
+font-size:14px;
+opacity:0.9;
 }
 
-button{
-margin-top:8px;
+/* BUTTON */
+.save-btn{
+background: linear-gradient(135deg,#00c853,#009624);
+padding:14px;
+border-radius:14px;
+width:100%;
+font-weight:bold;
+margin-top:10px;
+transition:0.25s;
 }
+
+.save-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 20px rgba(0,0,0,0.25);
+}
+
+/* DISH CARD */
+.dish-card{
+background: rgba(255,255,255,0.2);
+backdrop-filter: blur(10px);
+padding:18px;
+border-radius:18px;
+transition:0.25s;
+}
+
+.dish-card:hover{
+transform:scale(1.03);
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
 </style>
+
 </head>
 
 <body class="p-8">
 
-<h1 class="text-4xl font-bold mb-6">🍛 Kitchen Admin Panel</h1>
+<h1 class="text-4xl font-bold mb-8 text-center">🍛 Kitchen Admin Panel</h1>
 
 <!-- ADD / EDIT FORM -->
-<!-- MODERN ADD / EDIT FORM -->
-<div class="relative max-w-2xl mb-12 p-8 rounded-3xl shadow-2xl backdrop-blur-xl bg-white/20 border border-white/30">
 
-<h2 class="text-3xl font-bold mb-6 tracking-wide">Manage Dish</h2>
+<div class="form-card mb-12">
 
-<div class="space-y-5">
+<h2 id="formTitle" class="text-2xl font-bold mb-6 text-center">Add New Dish</h2>
 
-    <div class="relative">
-        <input id="name" placeholder=" "
-        class="peer w-full bg-white/90 text-black px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-400 transition" />
-        <label class="absolute left-4 top-3 text-gray-600 text-sm transition-all
-        peer-placeholder-shown:top-3
-        peer-placeholder-shown:text-base
-        peer-placeholder-shown:text-gray-500
-        peer-focus:top-[-10px]
-        peer-focus:text-sm
-        peer-focus:text-orange-600">
-        Dish Name
-        </label>
-    </div>
+<label class="input-label">Dish Name</label> <input id="name" class="input-field" placeholder="Paneer Butter Masala">
 
-    <div class="relative">
-        <input id="category" placeholder=" "
-        class="peer w-full bg-white/90 text-black px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-400 transition" />
-        <label class="absolute left-4 top-3 text-gray-600 text-sm transition-all
-        peer-placeholder-shown:top-3
-        peer-placeholder-shown:text-base
-        peer-placeholder-shown:text-gray-500
-        peer-focus:top-[-10px]
-        peer-focus:text-sm
-        peer-focus:text-orange-600">
-        Category
-        </label>
-    </div>
+<label class="input-label">Category</label> <select id="category" class="input-field">
 
-    <div class="relative">
-        <input id="price" type="number" placeholder=" "
-        class="peer w-full bg-white/90 text-black px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-400 transition" />
-        <label class="absolute left-4 top-3 text-gray-600 text-sm transition-all
-        peer-placeholder-shown:top-3
-        peer-placeholder-shown:text-base
-        peer-placeholder-shown:text-gray-500
-        peer-focus:top-[-10px]
-        peer-focus:text-sm
-        peer-focus:text-orange-600">
-        Price (₹)
-        </label>
-    </div>
+<option>Rice</option>
+<option>Curry</option>
+<option>Breads</option>
+<option>Chinese</option>
+<option>Beverage</option>
+<option>Dessert</option>
+</select>
 
-    <button onclick="saveDish()"
-    class="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:scale-105 hover:shadow-xl transition-all duration-300 text-white font-semibold py-3 rounded-xl">
-    Save Dish
-    </button>
+<label class="input-label">Price (₹)</label> <input id="price" type="number" class="input-field" placeholder="150">
 
-</div>
+<button onclick="saveDish()" class="save-btn">Save Dish</button>
 
 <input type="hidden" id="dishId">
 
 </div>
 
 <!-- MENU -->
+
 <div id="menu-list" class="grid md:grid-cols-3 gap-6"></div>
 
 <script>
@@ -123,15 +123,17 @@ container.innerHTML="";
 
 dishes.forEach(dish=>{
 const card=document.createElement("div");
-card.className="card";
+card.className="dish-card";
 
 card.innerHTML=`
-<h2 class="text-xl font-bold">${dish.name}</h2>
-<p>Category: ${dish.category}</p>
+<h2 class="text-xl font-bold mb-2">${dish.name}</h2>
+<p class="opacity-80">${dish.category}</p>
 <p class="text-lg font-semibold mb-3">₹${dish.price}</p>
 
-<button onclick='editDish(${JSON.stringify(dish)})' class="bg-yellow-400 px-3 py-1 rounded mr-2">Edit</button>
+<div class="flex gap-2">
+<button onclick='editDish(${JSON.stringify(dish)})' class="bg-yellow-400 text-black px-3 py-1 rounded">Edit</button>
 <button onclick="deleteDish('${dish._id}')" class="bg-red-500 px-3 py-1 rounded">Delete</button>
+</div>
 `;
 
 container.appendChild(card);
@@ -158,6 +160,7 @@ method:"PUT",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(data)
 });
+document.getElementById("formTitle").innerText="Add New Dish";
 }else{
 await fetch(API,{
 method:"POST",
@@ -175,10 +178,12 @@ loadMenu();
 }
 
 function editDish(dish){
+document.getElementById("formTitle").innerText="Edit Dish";
 document.getElementById("dishId").value=dish._id;
 document.getElementById("name").value=dish.name;
 document.getElementById("category").value=dish.category;
 document.getElementById("price").value=dish.price;
+window.scrollTo({top:0,behavior:"smooth"});
 }
 
 async function deleteDish(id){
