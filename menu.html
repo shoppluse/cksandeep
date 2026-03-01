@@ -47,16 +47,61 @@ margin-top:8px;
 <h1 class="text-4xl font-bold mb-6">🍛 Kitchen Admin Panel</h1>
 
 <!-- ADD / EDIT FORM -->
-<div class="card max-w-xl mb-10">
-<h2 class="text-2xl mb-4">Add / Edit Dish</h2>
+<!-- MODERN ADD / EDIT FORM -->
+<div class="relative max-w-2xl mb-12 p-8 rounded-3xl shadow-2xl backdrop-blur-xl bg-white/20 border border-white/30">
 
-<input id="name" placeholder="Dish Name">
-<input id="category" placeholder="Category">
-<input id="price" type="number" placeholder="Price">
+<h2 class="text-3xl font-bold mb-6 tracking-wide">Manage Dish</h2>
 
-<button onclick="saveDish()" class="bg-green-500 px-4 py-2 rounded w-full">
-Save Dish
-</button>
+<div class="space-y-5">
+
+    <div class="relative">
+        <input id="name" placeholder=" "
+        class="peer w-full bg-white/90 text-black px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-400 transition" />
+        <label class="absolute left-4 top-3 text-gray-600 text-sm transition-all
+        peer-placeholder-shown:top-3
+        peer-placeholder-shown:text-base
+        peer-placeholder-shown:text-gray-500
+        peer-focus:top-[-10px]
+        peer-focus:text-sm
+        peer-focus:text-orange-600">
+        Dish Name
+        </label>
+    </div>
+
+    <div class="relative">
+        <input id="category" placeholder=" "
+        class="peer w-full bg-white/90 text-black px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-400 transition" />
+        <label class="absolute left-4 top-3 text-gray-600 text-sm transition-all
+        peer-placeholder-shown:top-3
+        peer-placeholder-shown:text-base
+        peer-placeholder-shown:text-gray-500
+        peer-focus:top-[-10px]
+        peer-focus:text-sm
+        peer-focus:text-orange-600">
+        Category
+        </label>
+    </div>
+
+    <div class="relative">
+        <input id="price" type="number" placeholder=" "
+        class="peer w-full bg-white/90 text-black px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-400 transition" />
+        <label class="absolute left-4 top-3 text-gray-600 text-sm transition-all
+        peer-placeholder-shown:top-3
+        peer-placeholder-shown:text-base
+        peer-placeholder-shown:text-gray-500
+        peer-focus:top-[-10px]
+        peer-focus:text-sm
+        peer-focus:text-orange-600">
+        Price (₹)
+        </label>
+    </div>
+
+    <button onclick="saveDish()"
+    class="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:scale-105 hover:shadow-xl transition-all duration-300 text-white font-semibold py-3 rounded-xl">
+    Save Dish
+    </button>
+
+</div>
 
 <input type="hidden" id="dishId">
 
