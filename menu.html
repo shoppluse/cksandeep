@@ -26,50 +26,81 @@ transform: translateY(-6px) scale(1.02);
 background: rgba(255,255,255,0.25);
 box-shadow:0 20px 40px rgba(0,0,0,0.25);
 }
+
+input,button{
+color:black;
+}
 </style>
 </head>
 
 <body class="p-8">
 
-<h1 class="text-4xl font-bold mb-8">🍛 Our Menu</h1>
+<h1 class="text-4xl font-bold mb-6">🍛 Cloud Kitchen Menu</h1>
 
+<!-- ADD DISH FORM -->
+<div class="card p-6 rounded-2xl mb-8 max-w-xl">
+<h2 class="text-2xl font-semibold mb-4">Add New Dish</h2>
+
+<input id="name" placeholder="Dish Name" class="w-full p-2 mb-3 rounded">
+<input id="category" placeholder="Category" class="w-full p-2 mb-3 rounded">
+<input id="price" type="number" placeholder="Price" class="w-full p-2 mb-3 rounded">
+
+<button onclick="addDish()" class="bg-green-500 text-white px-4 py-2 rounded w-full">
+Add Dish
+</button>
+</div>
+
+<!-- MENU LIST -->
 <div id="menu-list" class="grid md:grid-cols-3 gap-6"></div>
-
 
 <script>
 
 async function loadMenu() {
+    const res = await fetch("http://localhost:5000/api/dishes");
+    const dishes = await res.json();
 
-    try {
-        const response = await fetch("http://localhost:5000/api/dishes");
-        const dishes = await response.json();
+    const container = document.getElementById("menu-list");
+    container.innerHTML = "";
 
-        const container = document.getElementById("menu-list");
-        container.innerHTML = "";
+    dishes.forEach(dish => {
+        const card = document.createElement("div");
+        card.className = "card p-6 rounded-2xl";
 
-        if(dishes.length === 0){
-            container.innerHTML = "<p>No dishes added yet</p>";
-            return;
-        }
+        card.innerHTML = `
+            <h2 class="text-2xl font-semibold mb-2">${dish.name}</h2>
+            <p class="opacity-80 mb-2">Category: ${dish.category}</p>
+            <p class="text-xl font-bold">₹${dish.price}</p>
+        `;
 
-        dishes.forEach(dish => {
+        container.appendChild(card);
+    });
+}
 
-            const card = document.createElement("div");
-            card.className = "card p-6 rounded-2xl";
 
-            card.innerHTML = `
-                <h2 class="text-2xl font-semibold mb-2">${dish.name}</h2>
-                <p class="opacity-80 mb-2">Category: ${dish.category}</p>
-                <p class="text-xl font-bold">₹${dish.price}</p>
-            `;
+async function addDish() {
 
-            container.appendChild(card);
-        });
+    const name = document.getElementById("name").value;
+    const category = document.getElementById("category").value;
+    const price = document.getElementById("price").value;
 
-    } catch(err) {
-        console.error("Error loading menu:", err);
-        document.getElementById("menu-list").innerHTML = "⚠️ Backend not running";
-    }
+    await fetch("http://localhost:5000/api/dishes", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name,
+            category,
+            price
+        })
+    });
+
+    // clear form
+    document.getElementById("name").value="";
+    document.getElementById("category").value="";
+    document.getElementById("price").value="";
+
+    loadMenu();
 }
 
 loadMenu();
