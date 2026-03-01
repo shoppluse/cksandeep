@@ -112,113 +112,126 @@ box-shadow:0 10px 30px rgba(0,0,0,0.3);
 
 <script>
 
-const API = "https://cloud-kitchen-w9zx.onrender.com/api/dishes";
+const API="https://cloud-kitchen-w9zx.onrender.com/api/dishes";
 
+let backendReady=false;
+
+/* ---------------- WAKE SERVER ---------------- */
+async function wakeBackend(){
+try{
+await fetch(API);
+backendReady=true;
+console.log("Backend Awake");
+}catch{
+console.log("Waking backend...");
+setTimeout(wakeBackend,4000);
+}
+}
+wakeBackend();
+
+
+/* ---------------- LOAD MENU ---------------- */
 async function loadMenu(){
-    try{
-        const res = await fetch(API);
-        const dishes = await res.json();
+try{
+const res=await fetch(API);
+const dishes=await res.json();
 
-        const container = document.getElementById("menu-list");
-        container.innerHTML = "";
+const container=document.getElementById("menu-list");
+container.innerHTML="";
 
-        dishes.forEach(dish=>{
-            const card = document.createElement("div");
-            card.className="dish-card";
+dishes.forEach(dish=>{
+const card=document.createElement("div");
+card.className="card";
 
-            card.innerHTML = `
-            <h2 class="text-xl font-bold mb-2">${dish.name}</h2>
-            <p class="opacity-80">${dish.category}</p>
-            <p class="text-lg font-semibold mb-3">₹${dish.price}</p>
+card.innerHTML=`
+<h2 class="text-xl font-bold">${dish.name}</h2>
+<p>Category: ${dish.category}</p>
+<p class="text-lg font-semibold mb-3">₹${dish.price}</p>
 
-            <div class="flex gap-2">
-            <button onclick='editDish(${JSON.stringify(dish)})' class="bg-yellow-400 text-black px-3 py-1 rounded">Edit</button>
-            <button onclick="deleteDish('${dish._id}')" class="bg-red-500 px-3 py-1 rounded">Delete</button>
-            </div>
-            `;
+<button onclick='editDish(${JSON.stringify(dish)})' class="bg-yellow-400 px-3 py-1 rounded mr-2">Edit</button>
+<button onclick="deleteDish('${dish._id}')" class="bg-red-500 px-3 py-1 rounded">Delete</button>
+`;
 
-            container.appendChild(card);
-        });
+container.appendChild(card);
+});
 
-    }catch(error){
-        console.error("Load error:", error);
-        alert("Backend not reachable. Wait 20 sec and try again.");
-    }
+}catch{
+alert("Server starting... please wait 10 seconds then refresh");
+}
 }
 
+
+/* ---------------- SAVE DISH ---------------- */
 async function saveDish(){
 
-    const id = document.getElementById("dishId").value;
-    const name = document.getElementById("name").value;
-    const category = document.getElementById("category").value;
-    const price = document.getElementById("price").value;
-
-    if(!name || !category || !price){
-        alert("Fill all fields");
-        return;
-    }
-
-    const data = { name, category, price };
-
-    try{
-
-        let response;
-
-        if(id){
-            response = await fetch(API+"/"+id,{
-                method:"PUT",
-                headers:{ "Content-Type":"application/json" },
-                body: JSON.stringify(data)
-            });
-        }else{
-            response = await fetch(API,{
-                method:"POST",
-                headers:{ "Content-Type":"application/json" },
-                body: JSON.stringify(data)
-            });
-        }
-
-        if(!response.ok){
-            const errorText = await response.text();
-            console.error("Server error:", errorText);
-            alert("Server error. Check console.");
-            return;
-        }
-
-        alert("Dish saved successfully ✅");
-
-        document.getElementById("dishId").value="";
-        document.getElementById("name").value="";
-        document.getElementById("category").value="";
-        document.getElementById("price").value="";
-
-        loadMenu();
-
-    }catch(error){
-        console.error("Save error:", error);
-        alert("Cannot connect to backend. It may be sleeping.");
-    }
+if(!backendReady){
+alert("Starting server... wait 10 seconds and try again");
+return;
 }
 
+const id=document.getElementById("dishId").value;
+const name=document.getElementById("name").value;
+const category=document.getElementById("category").value;
+const price=document.getElementById("price").value;
+
+if(!name||!category||!price){
+alert("Fill all fields");
+return;
+}
+
+const data={name,category,price};
+
+try{
+
+let res;
+
+if(id){
+res=await fetch(API+"/"+id,{
+method:"PUT",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+}else{
+res=await fetch(API,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+}
+
+if(!res.ok) throw new Error();
+
+document.getElementById("dishId").value="";
+document.getElementById("name").value="";
+document.getElementById("category").value="";
+document.getElementById("price").value="";
+
+loadMenu();
+
+}catch{
+alert("Server waking up... press save again in 5 sec");
+}
+
+}
+
+
+/* ---------------- EDIT ---------------- */
 function editDish(dish){
-    document.getElementById("formTitle").innerText="Edit Dish";
-    document.getElementById("dishId").value=dish._id;
-    document.getElementById("name").value=dish.name;
-    document.getElementById("category").value=dish.category;
-    document.getElementById("price").value=dish.price;
-    window.scrollTo({top:0,behavior:"smooth"});
+document.getElementById("dishId").value=dish._id;
+document.getElementById("name").value=dish.name;
+document.getElementById("category").value=dish.category;
+document.getElementById("price").value=dish.price;
 }
 
+
+/* ---------------- DELETE ---------------- */
 async function deleteDish(id){
-    if(confirm("Delete this dish?")){
-        await fetch(API+"/"+id,{method:"DELETE"});
-        loadMenu();
-    }
+await fetch(API+"/"+id,{method:"DELETE"});
+loadMenu();
 }
 
 loadMenu();
 
 </script>
-
 </body>
 </html>
