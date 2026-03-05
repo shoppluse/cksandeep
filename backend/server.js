@@ -6,7 +6,9 @@ require("dotenv").config();
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const User = require("./User");
+const sendVerificationEmail = require("./mailer");
 
 const app = express();
 
@@ -164,39 +166,46 @@ res.status(500).json({message:"Server error"});
 });
 
 // ===== LOGIN USER =====
-app.post("/api/login", async (req,res)=>{
+app.post("/api/register", async (req,res)=>{
 
 try{
 
-const {email,password} = req.body;
+const {name,email,password} = req.body;
 
-const user = await User.findOne({email});
+const existingUser = await User.findOne({email});
 
-if(!user){
-return res.status(400).json({message:"User not found"});
+if(existingUser){
+return res.status(400).json({message:"User already exists"});
 }
 
-const validPassword = await bcrypt.compare(password,user.password);
+const hashedPassword = await bcrypt.hash(password,10);
 
-if(!validPassword){
-return res.status(400).json({message:"Invalid password"});
-}
+const token = crypto.randomBytes(32).toString("hex");
 
-const token = jwt.sign({id:user._id},"secretkey");
-
-res.json({
-message:"Login successful",
-token
+const user = new User({
+name,
+email,
+password:hashedPassword,
+verificationToken:token
 });
 
+await user.save();
+
+await sendVerificationEmail(email,token);
+
+res.json({message:"Verification email sent"});
+
 }catch(err){
+
 res.status(500).json({message:"Server error"});
+
 }
 
 });
 // ===== START SERVER =====
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT} 🔥`));
+
 
 
 
