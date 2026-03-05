@@ -162,9 +162,42 @@ res.status(500).json({message:"Server error"});
 }
 
 });
+
+// ===== LOGIN USER =====
+app.post("/api/login", async (req,res)=>{
+
+try{
+
+const {email,password} = req.body;
+
+const user = await User.findOne({email});
+
+if(!user){
+return res.status(400).json({message:"User not found"});
+}
+
+const validPassword = await bcrypt.compare(password,user.password);
+
+if(!validPassword){
+return res.status(400).json({message:"Invalid password"});
+}
+
+const token = jwt.sign({id:user._id},"secretkey");
+
+res.json({
+message:"Login successful",
+token
+});
+
+}catch(err){
+res.status(500).json({message:"Server error"});
+}
+
+});
 // ===== START SERVER =====
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT} 🔥`));
+
 
 
 
