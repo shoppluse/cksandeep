@@ -202,9 +202,35 @@ res.status(500).json({message:"Server error"});
 }
 
 });
+// ===== VERIFY EMAIL =====
+app.get("/api/verify/:token", async (req,res)=>{
+
+try{
+
+const user = await User.findOne({verificationToken:req.params.token});
+
+if(!user){
+return res.send("Invalid verification link");
+}
+
+user.verified = true;
+user.verificationToken = undefined;
+
+await user.save();
+
+res.send("Account verified successfully. You can now login.");
+
+}catch(err){
+
+res.status(500).send("Verification failed");
+
+}
+
+});
 // ===== START SERVER =====
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT} 🔥`));
+
 
 
 
