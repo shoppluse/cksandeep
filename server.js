@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");   // ⭐ added
 require("dotenv").config();
 
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 const app = express();
 
 app.use(express.json());
@@ -37,6 +40,20 @@ const dishSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const Dish = mongoose.model("Dish", dishSchema);
+
+const userSchema = new mongoose.Schema({
+  email:{
+    type:String,
+    required:true,
+    unique:true
+  },
+  password:{
+    type:String,
+    required:true
+  }
+});
+
+const User = mongoose.model("User", userSchema);
 
 
 // ===== TEST ROUTE =====
@@ -100,6 +117,35 @@ app.delete("/api/dishes/:id", async (req, res) => {
     }
 });
 
+// ===== REGISTER USER =====
+app.post("/api/register", async (req,res)=>{
+ try{
+
+ const {email,password} = req.body;
+
+ // check if user already exists
+ const existing = await User.findOne({email});
+ if(existing){
+ return res.status(400).json({message:"User already exists"});
+ }
+
+ // encrypt password
+ const hashed = await bcrypt.hash(password,10);
+
+ const user = new User({
+ email,
+ password:hashed
+ });
+
+ await user.save();
+
+ res.json({message:"Account created successfully"});
+
+ }catch(err){
+ res.status(500).json({error:err.message});
+ }
+
+});
 
 // ===== START SERVER =====
 const PORT = process.env.PORT || 5000;
