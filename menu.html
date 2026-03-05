@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 
+<script>
+
+// ===== LOGIN PROTECTION =====
+const token = localStorage.getItem("token");
+
+if(!token){
+  alert("Please login first");
+  window.location = "login.html";
+}
+
+</script>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
