@@ -15,7 +15,6 @@ font-family:sans-serif;
 color:white;
 }
 
-/* FORM CARD */
 .form-card{
 background: rgba(255,255,255,0.18);
 backdrop-filter: blur(15px);
@@ -26,7 +25,6 @@ margin:auto;
 box-shadow:0 15px 40px rgba(0,0,0,0.25);
 }
 
-/* INPUT STYLE */
 .input-field{
 width:100%;
 padding:14px;
@@ -37,7 +35,6 @@ outline:none;
 margin-top:6px;
 }
 
-/* BUTTON */
 .save-btn{
 background: linear-gradient(135deg,#00c853,#009624);
 padding:14px;
@@ -53,7 +50,6 @@ transform:translateY(-2px);
 box-shadow:0 8px 20px rgba(0,0,0,0.25);
 }
 
-/* DISH CARD */
 .dish-card{
 background: rgba(255,255,255,0.2);
 backdrop-filter: blur(10px);
@@ -156,7 +152,6 @@ container.innerHTML="";
 dishes.forEach(dish=>{
 
 const card=document.createElement("div");
-
 card.className="dish-card";
 
 card.innerHTML=`
@@ -165,11 +160,20 @@ card.innerHTML=`
 
 <p>Category: ${dish.category}</p>
 
-<p class="text-lg font-semibold mb-3">₹${dish.price}</p>
+<p class="text-lg font-semibold">₹${dish.price}</p>
+
+<p class="mb-3 font-bold">
+Status: ${dish.available ? "✅ Available" : "❌ Unavailable"}
+</p>
 
 <button onclick='editDish(${JSON.stringify(dish)})'
 class="bg-yellow-400 px-3 py-1 rounded mr-2 text-black">
 Edit
+</button>
+
+<button onclick="toggleAvailability('${dish._id}',${dish.available})"
+class="bg-blue-500 px-3 py-1 rounded mr-2">
+Toggle
 </button>
 
 <button onclick="deleteDish('${dish._id}')"
@@ -256,11 +260,8 @@ alert("Server waking up... try again in 5 seconds");
 function editDish(dish){
 
 document.getElementById("dishId").value=dish._id;
-
 document.getElementById("name").value=dish.name;
-
 document.getElementById("category").value=dish.category;
-
 document.getElementById("price").value=dish.price;
 
 }
@@ -279,7 +280,10 @@ headers:{
 loadMenu();
 
 }
-  async function toggleAvailability(id,currentStatus){
+
+/* ===== TOGGLE AVAILABILITY ===== */
+
+async function toggleAvailability(id,currentStatus){
 
 await fetch(API+"/"+id,{
 method:"PUT",
