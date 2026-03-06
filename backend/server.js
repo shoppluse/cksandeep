@@ -119,17 +119,20 @@ res.status(500).json({error:err.message});
 });
 
 /* ===== UPDATE DISH ===== */
-app.put("/api/dishes/:id",auth,async(req,res)=>{
+app.put("/api/dishes/:id", async (req, res) => {
+
 try{
 
-const updated = await Dish.findOneAndUpdate(
-{_id:req.params.id,userId:req.userId},
-{
-name:req.body.name,
-category:req.body.category,
-price:Number(req.body.price),
-available:req.body.available
-},
+const updateData = {};
+
+if(req.body.name) updateData.name = req.body.name;
+if(req.body.category) updateData.category = req.body.category;
+if(req.body.price) updateData.price = Number(req.body.price);
+if(req.body.available !== undefined) updateData.available = req.body.available;
+
+const updated = await Dish.findByIdAndUpdate(
+req.params.id,
+updateData,
 {new:true}
 );
 
@@ -141,6 +144,7 @@ console.log("UPDATE ERROR:",err);
 res.status(500).json({error:err.message});
 
 }
+
 });
 
 /* ===== DELETE DISH ===== */
@@ -236,4 +240,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT,()=>{
 console.log(`Server running on port ${PORT} 🔥`);
 });
+
 
