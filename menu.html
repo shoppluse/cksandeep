@@ -279,6 +279,22 @@ headers:{
 loadMenu();
 
 }
+  async function toggleAvailability(id,currentStatus){
+
+await fetch(API+"/"+id,{
+method:"PUT",
+headers:{
+"Content-Type":"application/json",
+"Authorization":token
+},
+body:JSON.stringify({
+available:!currentStatus
+})
+});
+
+loadMenu();
+
+}
 
 /* ===== INITIAL LOAD ===== */
 
