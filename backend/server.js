@@ -6,17 +6,16 @@ require("dotenv").config();
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
+
 const User = require("./User");
-const sendVerificationEmail = require("./mailer");
 
 const app = express();
 
 /* ===== MIDDLEWARE ===== */
 app.use(cors({
-origin: "*",
-methods: ["GET","POST","PUT","DELETE"],
-allowedHeaders: ["Content-Type"]
+origin:"*",
+methods:["GET","POST","PUT","DELETE"],
+allowedHeaders:["Content-Type","Authorization"]
 }));
 
 app.use(express.json());
@@ -32,12 +31,45 @@ serverSelectionTimeoutMS:30000
 .then(()=>console.log("MongoDB Connected Successfully 🚀"))
 .catch(err=>console.log("MongoDB FAILED ❌",err.message));
 
+/* ===== AUTH MIDDLEWARE ===== */
+function auth(req,res,next){
+
+const token = req.headers.authorization;
+
+if(!token){
+return res.status(401).json({message:"No token provided"});
+}
+
+try{
+
+const decoded = jwt.verify(token,process.env.JWT_SECRET);
+
+req.userId = decoded.userId;
+
+next();
+
+}catch(err){
+
+return res.status(401).json({message:"Invalid token"});
+
+}
+
+}
+
 /* ===== DISH SCHEMA ===== */
 const dishSchema = new mongoose.Schema({
+
 name:{type:String,required:true},
 price:{type:Number,required:true},
 category:{type:String,required:true},
-available:{type:Boolean,default:true}
+available:{type:Boolean,default:true},
+
+userId:{
+type:mongoose.Schema.Types.ObjectId,
+ref:"User",
+required:true
+}
+
 },{timestamps:true});
 
 const Dish = mongoose.model("Dish",dishSchema);
@@ -48,14 +80,15 @@ res.send("Cloud Kitchen API Running 🍽️");
 });
 
 /* ===== CREATE DISH ===== */
-app.post("/api/dishes",async(req,res)=>{
+app.post("/api/dishes",auth,async(req,res)=>{
 try{
 
 const dish = new Dish({
 name:req.body.name,
 category:req.body.category,
 price:Number(req.body.price),
-available:true
+available:true,
+userId:req.userId
 });
 
 const savedDish = await dish.save();
@@ -63,41 +96,34 @@ const savedDish = await dish.save();
 res.status(201).json(savedDish);
 
 }catch(err){
+
 console.log("CREATE ERROR:",err);
 res.status(500).json({error:err.message});
+
 }
 });
 
-/* ===== GET ALL DISHES ===== */
-app.get("/api/dishes",async(req,res)=>{
+/* ===== GET USER DISHES ===== */
+app.get("/api/dishes",auth,async(req,res)=>{
 try{
 
-const dishes = await Dish.find();
+const dishes = await Dish.find({userId:req.userId});
+
 res.json(dishes);
 
 }catch(err){
+
 res.status(500).json({error:err.message});
-}
-});
 
-/* ===== GET SINGLE DISH ===== */
-app.get("/api/dishes/:id",async(req,res)=>{
-try{
-
-const dish = await Dish.findById(req.params.id);
-res.json(dish);
-
-}catch(err){
-res.status(500).json({error:err.message});
 }
 });
 
 /* ===== UPDATE DISH ===== */
-app.put("/api/dishes/:id",async(req,res)=>{
+app.put("/api/dishes/:id",auth,async(req,res)=>{
 try{
 
-const updated = await Dish.findByIdAndUpdate(
-req.params.id,
+const updated = await Dish.findOneAndUpdate(
+{_id:req.params.id,userId:req.userId},
 {
 name:req.body.name,
 category:req.body.category,
@@ -109,20 +135,25 @@ price:Number(req.body.price)
 res.json(updated);
 
 }catch(err){
+
 console.log("UPDATE ERROR:",err);
 res.status(500).json({error:err.message});
+
 }
 });
 
 /* ===== DELETE DISH ===== */
-app.delete("/api/dishes/:id",async(req,res)=>{
+app.delete("/api/dishes/:id",auth,async(req,res)=>{
 try{
 
-await Dish.findByIdAndDelete(req.params.id);
+await Dish.findOneAndDelete({_id:req.params.id,userId:req.userId});
+
 res.json({message:"Dish deleted 🗑️"});
 
 }catch(err){
+
 res.status(500).json({error:err.message});
+
 }
 });
 
@@ -141,8 +172,6 @@ return res.status(400).json({message:"User already exists"});
 
 const hashedPassword = await bcrypt.hash(password,10);
 
-const token = crypto.randomBytes(32).toString("hex");
-
 const user = new User({
 name,
 email,
@@ -152,12 +181,12 @@ verified:true
 
 await user.save();
 
-await sendVerificationEmail(email,token);
-
-res.json({message:"Verification email sent"});
+res.json({message:"User registered successfully"});
 
 }catch(err){
+
 res.status(500).json({message:"Server error"});
+
 }
 
 });
@@ -177,8 +206,8 @@ return res.status(400).json({message:"User not found"});
 
 const validPassword = await bcrypt.compare(password,user.password);
 
-if(!user.verified){
-return res.status(400).json({message:"Please verify your email first"});
+if(!validPassword){
+return res.status(400).json({message:"Invalid password"});
 }
 
 const token = jwt.sign(
@@ -193,31 +222,9 @@ token
 });
 
 }catch(err){
+
 res.status(500).json({message:"Server error"});
-}
 
-});
-
-/* ===== VERIFY EMAIL ===== */
-app.get("/api/verify/:token",async(req,res)=>{
-
-try{
-
-const user = await User.findOne({verificationToken:req.params.token});
-
-if(!user){
-return res.send("Invalid verification link");
-}
-
-user.verified = true;
-user.verificationToken = undefined;
-
-await user.save();
-
-res.send("Account verified successfully. You can now login.");
-
-}catch(err){
-res.status(500).send("Verification failed");
 }
 
 });
@@ -226,7 +233,5 @@ res.status(500).send("Verification failed");
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT,()=>{
-console.log('Server running on port ${PORT} 🔥');
+console.log(`Server running on port ${PORT} 🔥`);
 });
-
-
