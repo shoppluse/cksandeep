@@ -2,32 +2,32 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
 
-  name:{
-    type:String,
-    required:true
-  },
+name:{
+type:String,
+required:true
+},
 
-  email:{
-    type:String,
-    required:true,
-    unique:true,
-    match:[/^\S+@\S+\.\S+$/, "Please use a valid email address"]
-  },
+email:{
+type:String,
+required:true,
+unique:true
+},
 
-  password:{
-    type:String,
-    required:true
-  },
+password:{
+type:String,
+required:true
+},
 
-  verified:{
-    type:Boolean,
-    default:false
-  },
+verified:{
+type:Boolean,
+default:true
+},
 
-  verificationToken:{
-    type:String
-  }
+role:{
+type:String,
+default:"user"
+}
 
 });
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("User",userSchema);
