@@ -147,7 +147,7 @@ const user = new User({
 name,
 email,
 password:hashedPassword,
-verificationToken:token
+verified:true
 });
 
 await user.save();
@@ -176,10 +176,6 @@ return res.status(400).json({message:"User not found"});
 }
 
 const validPassword = await bcrypt.compare(password,user.password);
-
-if(!validPassword){
-return res.status(400).json({message:"Invalid password"});
-}
 
 if(!user.verified){
 return res.status(400).json({message:"Please verify your email first"});
@@ -232,4 +228,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT,()=>{
 console.log('Server running on port ${PORT} 🔥');
 });
+
 
