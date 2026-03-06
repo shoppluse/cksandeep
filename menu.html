@@ -1,28 +1,4 @@
 <!DOCTYPE html>
-
-<script>
-
-// ===== LOGIN PROTECTION =====
-const token = localStorage.getItem("token");
-
-if(!token){
-  alert("Please login first");
-  window.location = "login.html";
-}
-
-</script>
-
-<button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded">
-Logout
-</button>
-
-<script>
-function logout(){
-  localStorage.removeItem("token");
-  window.location="login.html";
-}
-</script>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -31,6 +7,7 @@ function logout(){
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
+
 body{
 background: linear-gradient(135deg,#ff7a18,#ffb347,#ff416c);
 min-height:100vh;
@@ -60,11 +37,6 @@ outline:none;
 margin-top:6px;
 }
 
-.input-label{
-font-size:14px;
-opacity:0.9;
-}
-
 /* BUTTON */
 .save-btn{
 background: linear-gradient(135deg,#00c853,#009624);
@@ -72,7 +44,7 @@ padding:14px;
 border-radius:14px;
 width:100%;
 font-weight:bold;
-margin-top:10px;
+margin-top:12px;
 transition:0.25s;
 }
 
@@ -96,22 +68,29 @@ box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
 
 </style>
-
 </head>
 
 <body class="p-8">
 
-<h1 class="text-4xl font-bold mb-8 text-center">🍛 Kitchen Admin Panel</h1>
+<h1 class="text-4xl font-bold mb-6 text-center">🍛 Kitchen Admin Panel</h1>
 
-<!-- ADD / EDIT FORM -->
+<div class="flex justify-center mb-6">
+<button onclick="logout()" class="bg-red-500 px-4 py-2 rounded">
+Logout
+</button>
+</div>
+
+<!-- ADD DISH FORM -->
 
 <div class="form-card mb-12">
 
-<h2 id="formTitle" class="text-2xl font-bold mb-6 text-center">Add New Dish</h2>
+<h2 class="text-2xl font-bold mb-6 text-center">Add Dish</h2>
 
-<label class="input-label">Dish Name</label> <input id="name" class="input-field" placeholder="Paneer Butter Masala">
+<label>Dish Name</label>
+<input id="name" class="input-field" placeholder="Paneer Butter Masala">
 
-<label class="input-label">Category</label> <select id="category" class="input-field">
+<label>Category</label>
+<select id="category" class="input-field">
 
 <option>Rice</option>
 <option>Curry</option>
@@ -119,10 +98,11 @@ box-shadow:0 10px 30px rgba(0,0,0,0.3);
 <option>Chinese</option>
 <option>Beverage</option>
 <option>Dessert</option>
-<option>others</option>
+
 </select>
 
-<label class="input-label">Price (₹)</label> <input id="price" type="number" class="input-field" placeholder="150">
+<label>Price ₹</label>
+<input id="price" type="number" class="input-field">
 
 <button onclick="saveDish()" class="save-btn">Save Dish</button>
 
@@ -130,67 +110,90 @@ box-shadow:0 10px 30px rgba(0,0,0,0.3);
 
 </div>
 
-<!-- MENU -->
+<!-- DISH LIST -->
 
 <div id="menu-list" class="grid md:grid-cols-3 gap-6"></div>
 
 <script>
 
+/* ===== LOGIN PROTECTION ===== */
+
+const token = localStorage.getItem("token");
+
+if(!token){
+alert("Please login first");
+window.location="login.html";
+}
+
+/* ===== API ===== */
+
 const API="https://cloud-kitchen-is6g.onrender.com/api/dishes";
-let backendReady=false;
 
-/* ---------------- WAKE SERVER ---------------- */
-async function wakeBackend(){
-try{
-await fetch(API);
-backendReady=true;
-console.log("Backend Awake");
-}catch{
-console.log("Waking backend...");
-setTimeout(wakeBackend,4000);
+/* ===== LOGOUT ===== */
+
+function logout(){
+localStorage.removeItem("token");
+window.location="login.html";
 }
-}
-wakeBackend();
 
+/* ===== LOAD DISHES ===== */
 
-/* ---------------- LOAD MENU ---------------- */
 async function loadMenu(){
+
 try{
-const res=await fetch(API);
-const dishes=await res.json();
+
+const res = await fetch(API,{
+headers:{
+"Authorization":token
+}
+});
+
+const dishes = await res.json();
 
 const container=document.getElementById("menu-list");
 container.innerHTML="";
 
 dishes.forEach(dish=>{
+
 const card=document.createElement("div");
-card.className="card";
+
+card.className="dish-card";
 
 card.innerHTML=`
+
 <h2 class="text-xl font-bold">${dish.name}</h2>
+
 <p>Category: ${dish.category}</p>
+
 <p class="text-lg font-semibold mb-3">₹${dish.price}</p>
 
-<button onclick='editDish(${JSON.stringify(dish)})' class="bg-yellow-400 px-3 py-1 rounded mr-2">Edit</button>
-<button onclick="deleteDish('${dish._id}')" class="bg-red-500 px-3 py-1 rounded">Delete</button>
+<button onclick='editDish(${JSON.stringify(dish)})'
+class="bg-yellow-400 px-3 py-1 rounded mr-2 text-black">
+Edit
+</button>
+
+<button onclick="deleteDish('${dish._id}')"
+class="bg-red-500 px-3 py-1 rounded">
+Delete
+</button>
+
 `;
 
 container.appendChild(card);
+
 });
 
 }catch{
-alert("Server starting... please wait 10 seconds then refresh");
-}
+
+alert("Server waking up... refresh in 10 seconds");
+
 }
 
+}
 
-/* ---------------- SAVE DISH ---------------- */
+/* ===== SAVE DISH ===== */
+
 async function saveDish(){
-
-if(!backendReady){
-alert("Starting server... wait 10 seconds and try again");
-return;
-}
 
 const id=document.getElementById("dishId").value;
 const name=document.getElementById("name").value;
@@ -209,52 +212,79 @@ try{
 let res;
 
 if(id){
-res=await fetch(API+"/"+id,{
+
+res = await fetch(API+"/"+id,{
 method:"PUT",
-headers:{"Content-Type":"application/json"},
+headers:{
+"Content-Type":"application/json",
+"Authorization":token
+},
 body:JSON.stringify(data)
 });
+
 }else{
-res=await fetch(API,{
+
+res = await fetch(API,{
 method:"POST",
-headers:{"Content-Type":"application/json"},
+headers:{
+"Content-Type":"application/json",
+"Authorization":token
+},
 body:JSON.stringify(data)
 });
+
 }
 
 if(!res.ok) throw new Error();
 
 document.getElementById("dishId").value="";
 document.getElementById("name").value="";
-document.getElementById("category").value="";
 document.getElementById("price").value="";
 
 loadMenu();
 
 }catch{
-alert("Server waking up... press save again in 5 sec");
-}
+
+alert("Server waking up... try again in 5 seconds");
 
 }
 
+}
 
-/* ---------------- EDIT ---------------- */
+/* ===== EDIT ===== */
+
 function editDish(dish){
+
 document.getElementById("dishId").value=dish._id;
+
 document.getElementById("name").value=dish.name;
+
 document.getElementById("category").value=dish.category;
+
 document.getElementById("price").value=dish.price;
+
 }
 
+/* ===== DELETE ===== */
 
-/* ---------------- DELETE ---------------- */
 async function deleteDish(id){
-await fetch(API+"/"+id,{method:"DELETE"});
-loadMenu();
+
+await fetch(API+"/"+id,{
+method:"DELETE",
+headers:{
+"Authorization":token
 }
+});
+
+loadMenu();
+
+}
+
+/* ===== INITIAL LOAD ===== */
 
 loadMenu();
 
 </script>
+
 </body>
 </html>
