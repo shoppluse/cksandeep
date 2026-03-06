@@ -56,6 +56,19 @@ return res.status(401).json({message:"Invalid token"});
 
 }
 
+/* ===== ADMIN CHECK ===== */
+async function adminOnly(req,res,next){
+
+const user = await User.findById(req.userId);
+
+if(!user || user.role !== "admin"){
+return res.status(403).json({message:"Admin only"});
+}
+
+next();
+
+}
+
 /* ===== DISH SCHEMA ===== */
 const dishSchema = new mongoose.Schema({
 
@@ -79,8 +92,8 @@ app.get("/",(req,res)=>{
 res.send("Cloud Kitchen API Running 🍽️");
 });
 
-/* ===== CREATE DISH ===== */
-app.post("/api/dishes",auth,async(req,res)=>{
+/* ===== CREATE DISH (ADMIN ONLY) ===== */
+app.post("/api/dishes",auth,adminOnly,async(req,res)=>{
 try{
 
 const dish = new Dish({
@@ -103,11 +116,11 @@ res.status(500).json({error:err.message});
 }
 });
 
-/* ===== GET USER DISHES ===== */
+/* ===== GET DISHES (ALL USERS) ===== */
 app.get("/api/dishes",auth,async(req,res)=>{
 try{
 
-const dishes = await Dish.find({userId:req.userId});
+const dishes = await Dish.find();
 
 res.json(dishes);
 
@@ -118,8 +131,8 @@ res.status(500).json({error:err.message});
 }
 });
 
-/* ===== UPDATE DISH ===== */
-app.put("/api/dishes/:id", async (req, res) => {
+/* ===== UPDATE DISH (ADMIN ONLY) ===== */
+app.put("/api/dishes/:id",auth,adminOnly,async(req,res)=>{
 
 try{
 
@@ -147,11 +160,11 @@ res.status(500).json({error:err.message});
 
 });
 
-/* ===== DELETE DISH ===== */
-app.delete("/api/dishes/:id",auth,async(req,res)=>{
+/* ===== DELETE DISH (ADMIN ONLY) ===== */
+app.delete("/api/dishes/:id",auth,adminOnly,async(req,res)=>{
 try{
 
-await Dish.findOneAndDelete({_id:req.params.id,userId:req.userId});
+await Dish.findByIdAndDelete(req.params.id);
 
 res.json({message:"Dish deleted 🗑️"});
 
@@ -240,5 +253,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT,()=>{
 console.log(`Server running on port ${PORT} 🔥`);
 });
-
-
