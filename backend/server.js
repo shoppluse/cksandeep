@@ -127,7 +127,8 @@ const updated = await Dish.findOneAndUpdate(
 {
 name:req.body.name,
 category:req.body.category,
-price:Number(req.body.price)
+price:Number(req.body.price),
+available:req.body.available
 },
 {new:true}
 );
@@ -235,3 +236,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT,()=>{
 console.log(`Server running on port ${PORT} 🔥`);
 });
+
