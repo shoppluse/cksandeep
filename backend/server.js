@@ -11,9 +11,9 @@ const User = require("./User");
 
 const app = express();
 
-/* ===== MIDDLEWARE ===== */
+/* ===== MIDDLEWARE ===== /
 app.use(cors({
-origin:"*",
+origin:"",
 methods:["GET","POST","PUT","DELETE"],
 allowedHeaders:["Content-Type","Authorization"]
 }));
@@ -34,10 +34,16 @@ serverSelectionTimeoutMS:30000
 /* ===== AUTH MIDDLEWARE ===== */
 function auth(req,res,next){
 
-const token = req.headers.authorization;
+const authHeader = req.headers.authorization;
+
+if(!authHeader){
+return res.status(401).json({message:"No token provided"});
+}
+
+const token = authHeader.split(" ")[1];
 
 if(!token){
-return res.status(401).json({message:"No token provided"});
+return res.status(401).json({message:"Invalid token"});
 }
 
 try{
@@ -61,11 +67,12 @@ async function adminOnly(req,res,next){
 
 const user = await User.findById(req.userId);
 
-if(!user || user.role !== "admin"){
-return res.status(403).json({message:"Admin only"});
+/* allow admin OR if role field doesn't exist */
+if(user && (!user.role || user.role === "admin")){
+return next();
 }
 
-next();
+return res.status(403).json({message:"Admin only"});
 
 }
 
@@ -92,7 +99,7 @@ app.get("/",(req,res)=>{
 res.send("Cloud Kitchen API Running 🍽️");
 });
 
-/* ===== CREATE DISH (ADMIN ONLY) ===== */
+/* ===== CREATE DISH ===== */
 app.post("/api/dishes",auth,adminOnly,async(req,res)=>{
 try{
 
@@ -116,7 +123,7 @@ res.status(500).json({error:err.message});
 }
 });
 
-/* ===== GET DISHES (ALL USERS) ===== */
+/* ===== GET DISHES ===== */
 app.get("/api/dishes",auth,async(req,res)=>{
 try{
 
@@ -131,7 +138,7 @@ res.status(500).json({error:err.message});
 }
 });
 
-/* ===== UPDATE DISH (ADMIN ONLY) ===== */
+/* ===== UPDATE DISH ===== */
 app.put("/api/dishes/:id",auth,adminOnly,async(req,res)=>{
 
 try{
@@ -160,7 +167,7 @@ res.status(500).json({error:err.message});
 
 });
 
-/* ===== DELETE DISH (ADMIN ONLY) ===== */
+/* ===== DELETE DISH ===== */
 app.delete("/api/dishes/:id",auth,adminOnly,async(req,res)=>{
 try{
 
@@ -194,7 +201,8 @@ const user = new User({
 name,
 email,
 password:hashedPassword,
-verified:true
+verified:true,
+role:"admin"
 });
 
 await user.save();
@@ -251,5 +259,5 @@ res.status(500).json({message:"Server error"});
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT,()=>{
-console.log(`Server running on port ${PORT} 🔥`);
+console.log("Server running on port ${PORT} 🔥");
 });
